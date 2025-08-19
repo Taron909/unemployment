@@ -184,11 +184,34 @@
   <script>
     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     // ====== 設定（前端 Demo：把 key 寫這）=====
-    const API_KEY    = 'AIzaSyBoFmlsnaABMBbn-r3w_49SzZlksRrHazA';            // ⛔ 只有示範用！
-    const MODEL      = 'gemini-2.5-flash-preview-05-20';
-    const API_URL    = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
-    const STORAGE_KEY= 'chatHistoryV1';
-    const MAX_CHARS  = 500;
+    const ALLOWED_ORIGINS = [
+  'https://你的站名.netlify.app',
+  'http://localhost:8888'
+];
+
+const headers = (origin) => ({
+  'Access-Control-Allow-Origin': origin,
+  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Content-Type': 'application/json; charset=utf-8'
+});
+
+export async function handler(event) {
+  const origin = ALLOWED_ORIGINS.includes(event.headers.origin) ? event.headers.origin : ALLOWED_ORIGINS[0];
+  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: headers(origin) };
+  if (event.httpMethod !== 'POST')   return { statusCode: 405, headers: headers(origin), body: '{"error":"Method Not Allowed"}' };
+
+  const API_KEY = process.env.GOOGLE_API_KEY;           // ← 就用你剛設的變數
+  const MODEL   = 'gemini-2.5-flash-preview-05-20';
+
+  const body = JSON.parse(event.body || '{}');
+  const url  = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
+
+  const resp = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  const text = await resp.text();
+  return { statusCode: resp.status, headers: headers(origin), body: text };
+}
+
 
     // ====== DOM ======
     const chatEl     = document.getElementById('chat');
