@@ -102,6 +102,7 @@
       .nav-buttons button {
         background: var(--brand-blue); color: #fff; border: none; padding: 10px 20px; font-size: 1em;
         cursor: pointer; border-radius: 5px; min-width: 80px;
+         margin-bottom: 80px; /* 預留空間避免被 footer 蓋掉 */
       }
       .nav-buttons button:hover { background: #880e4f; }
       .page-indicator { font-weight: 700; color: var(--brand-blue); }
@@ -135,6 +136,8 @@
   .table-container { 
     overflow-x: auto;            /* 允許左右滑動 */
     -webkit-overflow-scrolling: touch;
+    padding-bottom: calc(var(--footer-h) + 60px); /* 原本 footer 高度 + 額外空間 */
+    
   }
   .table-container table { 
     width: auto; 
