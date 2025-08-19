@@ -1,0 +1,13 @@
+{
+  "name": "tw-unemployment-site",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "node build.js || echo 'no build step; publishing ./public'",
+    "dev": "npx netlify-cli dev --dir=public --functions=netlify/functions"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.34.1",
+    "esbuild": "^0.23.0"
+  }
+}

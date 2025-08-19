@@ -1,0 +1,7 @@
+# Node / Netlify / OS
+node_modules/
+.netlify/
+dist/
+.DS_Store
+Thumbs.db
+.env
