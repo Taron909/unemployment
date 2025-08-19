@@ -130,30 +130,26 @@
         .table-container table { min-width: 480px; }
       }
   
-      /* 手機卡片式表格 */
-      @media (max-width: 640px) {
-        .table-container table,
-        .table-container thead,
-        .table-container tbody,
-        .table-container tr,
-        .table-container th,
-        .table-container td { display: block; width: 100%; }
-  
-        .table-container thead { display: none; } /* 改用卡片標籤 */
-  
-        .table-container tr {
-          border: 1px solid #ddd; border-radius: 12px; margin-bottom: 12px; background: #fff; overflow: hidden;
-        }
-        .table-container td {
-          border: none; padding: 12px 14px; line-height: 1.6;
-          font-size: 1.05em; /* 內容文字略大 */
-        }
-        .table-container td::before {
-          content: attr(data-label);
-          display: block; font-weight: 700; color: var(--brand-blue); margin-bottom: 4px;
-          font-size: 0.95em; /* 標籤略小 */
-        }
-      }
+      /* 手機也維持表格式（用水平捲動，不改成卡片） */
+@media (max-width: 640px) {
+  .table-container { 
+    overflow-x: auto;            /* 允許左右滑動 */
+    -webkit-overflow-scrolling: touch;
+  }
+  .table-container table { 
+    width: auto; 
+    min-width: 560px;            /* 讓小螢幕出現水平卷軸 */
+    table-layout: fixed;
+  }
+  /* 維持表格語意，不轉成 block/card */
+  .table-container thead { display: table-header-group; }
+  .table-container tbody { display: table-row-group; }
+  .table-container tr    { display: table-row; }
+  .table-container th,
+  .table-container td    { display: table-cell; }
+  .table-container td::before { content: none !important; }
+}
+
   
       /* 可見鍵盤焦點（A11y） */
       a:focus-visible, button:focus-visible {
