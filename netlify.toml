@@ -1,8 +1,3 @@
 [build]
-  publish = "."                # 使用根目錄作為靜態檔案目錄
+  publish = "."
   functions = "netlify/functions"
-
-[[redirects]]
-  from = "/api/chat"
-  to = "/.netlify/functions/chat"
-  status = 200
