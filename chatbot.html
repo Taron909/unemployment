@@ -10,16 +10,122 @@
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
   <style>
-    body{font-family:'Noto Sans TC',sans-serif;background:#fdfcd9;margin:0}
-    .header{background:#21409a;color:#fff;text-align:center;padding:24px 0;font-weight:700}
-    nav{background:#21409a;display:flex;justify-content:center;flex-wrap:wrap}
-    nav a{color:#fff;padding:16px 24px;text-decoration:none;font-weight:700}
-    nav a:hover{background:#880e4f}
-    .footer{position:fixed;left:0;bottom:0;width:100%;background:#21409a;color:#fff;text-align:center;padding:10px 8px}
-    main{max-width:960px;margin:24px auto;padding:0 16px 96px}
-    .box{background:#fff;border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,.08);overflow:hidden}
-    .chat{min-height:60vh;max-height:70vh;overflow:auto;background:#f8fafc}
-    .chips button{border-radius:9999px}
+    /* ===== 共用樣式 ===== */
+    body {
+      font-family: 'Noto Sans TC', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background-color: #fdfcd9; /* 鵝黃色背景 */
+      margin: 0;
+      padding-bottom: 80px; /* 預留 footer 空間 */
+    }
+
+    h2 {
+      color: #21409a;
+      margin-top: 40px;
+    }
+
+    canvas {
+      max-width: 100%;
+      margin-bottom: 40px;
+    }
+
+    /* ===== 頁首樣式 ===== */
+    .header {
+      background-color: #21409a;
+      color: white;
+      text-align: center;
+      padding: 30px 0;
+      font-size: 2em;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+
+    /* ===== 導覽列樣式 ===== */
+    nav {
+      background-color: #21409a;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    nav a {
+      display: inline-block;
+      line-height: 2em;
+      padding: 30px 50px;
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      white-space: nowrap;
+      font-size: clamp(0.9em, 2.5vw, 1.3em);
+    }
+
+    nav a:hover {
+      background-color: #880e4f;
+    }
+
+    .w3-bar .active {
+      background-color: #800080 !important;
+      color: white !important;
+    }
+
+    @media (max-width: 992px) {
+      nav.w3-bar a {
+        padding: 20px 30px !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      nav.w3-bar {
+        flex-direction: column;
+      }
+      nav.w3-bar a {
+        width: 100%;
+        text-align: center;
+        padding: 16px 20px !important;
+      }
+    }
+
+    /* ===== 頁尾樣式 ===== */
+    .footer {
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      background-color: #21409a;
+      color: white;
+      text-align: center;
+      padding: 10px 8px;
+      z-index: 10;
+    }
+
+    .footer a {
+      color: white;
+      text-decoration: underline;
+    }
+
+    /* ===== 主內容區塊 ===== */
+    main {
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 0 16px;
+    }
+
+    .box {
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 12px 30px rgba(0,0,0,.08);
+      overflow: hidden;
+    }
+
+    .chat {
+      min-height: 25vh;   /* 初始高度 */
+      max-height: none;   /* 移除上限 */
+      overflow: visible;  /* 交由 body 來滾動 */
+      background: #f8fafc;
+    }
+
+    .chips button {
+      border-radius: 9999px;
+    }
   </style>
 </head>
 <body>
@@ -55,7 +161,6 @@
       <div class="flex items-center justify-between px-4 py-2 bg-white border-t">
         <div class="flex gap-2">
           <button id="export-txt"  class="px-3 py-1 text-sm bg-gray-100 rounded hover:bg-gray-200">匯出 .txt</button>
-          <button id="export-json" class="px-3 py-1 text-sm bg-gray-100 rounded hover:bg-gray-200">匯出 .json</button>
           <button id="clear"       class="px-3 py-1 text-sm bg-gray-100 rounded hover:bg-gray-200">清除聊天</button>
         </div>
         <button id="abort" class="px-3 py-1 text-sm bg-rose-600 text-white rounded hover:bg-rose-700 hidden">停止生成</button>
@@ -77,6 +182,7 @@
   </footer>
 
   <script>
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     // ====== 設定（前端 Demo：把 key 寫這）=====
     const API_KEY    = 'AIzaSyBoFmlsnaABMBbn-r3w_49SzZlksRrHazA';            // ⛔ 只有示範用！
     const MODEL      = 'gemini-2.5-flash-preview-05-20';
@@ -130,7 +236,6 @@
 
     // 匯出/清除/停止
     exportTxt.onclick  = ()=>exportChat('txt');
-    exportJson.onclick = ()=>exportChat('json');
     clearBtn.onclick   = clearChat;
     abortBtn.onclick   = ()=>controller?.abort();
 
