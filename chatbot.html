@@ -130,6 +130,7 @@
 </head>
 <body>
   <header class="header">數據之下的現實：重新認識台灣失業率</header>
+
   <nav class="w3-bar w3-indigo">
     <a class="w3-bar-item w3-button w3-hover-white" href="index.html">首頁</a>
     <a class="w3-bar-item w3-button w3-hover-white" href="trend.html">趨勢分析</a>
@@ -142,7 +143,7 @@
     <div class="box">
       <div class="p-4 text-white text-center text-xl font-bold bg-gradient-to-r from-blue-500 to-purple-600">問問中心</div>
 
-      <!-- Chips -->
+      <!-- 快速問題 chips -->
       <div id="chips" class="chips flex flex-wrap gap-2 px-4 py-3 bg-white border-b">
         <button class="px-3 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100" data-q="最近三個月失業率趨勢？">最近三個月失業率趨勢？</button>
         <button class="px-3 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100" data-q="青年失業的主要原因？">青年失業的主要原因？</button>
@@ -150,23 +151,23 @@
         <button class="px-3 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100" data-q="幫我列出可申請的補助">幫我列出可申請的補助</button>
       </div>
 
-      <!-- Chat -->
+      <!-- Chat 區 -->
       <div id="chat" class="chat p-4 space-y-4"></div>
       <div id="loading" class="hidden flex justify-center items-center py-2">
         <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
         <span class="ml-2 text-gray-600">正在思考...</span>
       </div>
 
-      <!-- Toolbar -->
+      <!-- 工具列 -->
       <div class="flex items-center justify-between px-4 py-2 bg-white border-t">
         <div class="flex gap-2">
-          <button id="export-txt"  class="px-3 py-1 text-sm bg-gray-100 rounded hover:bg-gray-200">匯出 .txt</button>
-          <button id="clear"       class="px-3 py-1 text-sm bg-gray-100 rounded hover:bg-gray-200">清除聊天</button>
+          <button id="export-txt" class="px-3 py-1 text-sm bg-gray-100 rounded hover:bg-gray-200">匯出 .txt</button>
+          <button id="clear" class="px-3 py-1 text-sm bg-gray-100 rounded hover:bg-gray-200">清除聊天</button>
         </div>
         <button id="abort" class="px-3 py-1 text-sm bg-rose-600 text-white rounded hover:bg-rose-700 hidden">停止生成</button>
       </div>
 
-      <!-- Input -->
+      <!-- 輸入列 -->
       <div class="p-4 bg-white border-t flex items-start gap-2">
         <textarea id="input" rows="1" class="flex-1 p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none h-12 overflow-hidden" placeholder="輸入你的訊息..."></textarea>
         <div class="flex flex-col items-end gap-2">
@@ -182,32 +183,39 @@
   </footer>
 
   <script>
-    // 只打你的 Netlify Function，不再暴露金鑰
-    const API_URL     = '/api/generate';
+    // --- API 端點：在 Netlify 上跑用相對路徑，否則打你的 Netlify 網域 ---
+    const NETLIFY_ORIGIN = 'https://friendly-horse-638aa2.netlify.app';
+    const API_URL = (location.origin === NETLIFY_ORIGIN || location.hostname.endsWith('.netlify.app'))
+      ? '/api/generate'
+      : `${NETLIFY_ORIGIN}/api/generate`;
+
     const STORAGE_KEY = 'chatHistoryV1';
     const MAX_CHARS   = 500;
 
-    // ===== DOM =====
-    const chatEl     = document.getElementById('chat');
-    const inputEl    = document.getElementById('input');
-    const sendBtn    = document.getElementById('send');
-    const counterEl  = document.getElementById('counter');
-    const loadingEl  = document.getElementById('loading');
-    const abortBtn   = document.getElementById('abort');
-    const chipsEl    = document.getElementById('chips');
-    const exportTxt  = document.getElementById('export-txt');
-    const clearBtn   = document.getElementById('clear');
+    // DOM
+    const chatEl    = document.getElementById('chat');
+    const inputEl   = document.getElementById('input');
+    const sendBtn   = document.getElementById('send');
+    const counterEl = document.getElementById('counter');
+    const loadingEl = document.getElementById('loading');
+    const abortBtn  = document.getElementById('abort');
+    const chipsEl   = document.getElementById('chips');
+    const exportTxt = document.getElementById('export-txt');
+    const clearBtn  = document.getElementById('clear');
 
-    let controller = null;
-    let history = load() || [];
+    // Markdown 安全渲染
     marked.setOptions({ breaks:true, gfm:true });
     const md = (t)=> DOMPurify.sanitize(marked.parse(t||''));
 
-    // 初始訊息 / 歷史
+    // 狀態
+    let controller = null;
+    let history = load() || [];
+
+    // 初始訊息
     if (history.length === 0) addMsg('bot','嗨！有什麼我可以幫助你的嗎？');
     else history.forEach(m=>addMsg(m.role==='user'?'user':'bot', m.parts?.[0]?.text||''));
 
-    // Chips
+    // Chips 點擊
     chipsEl.addEventListener('click', e=>{
       const b = e.target.closest('button[data-q]');
       if (!b) return;
@@ -216,10 +224,10 @@
       inputEl.focus();
     });
 
-    // 輸入/送出
+    // 輸入框自動增高與送出
     inputEl.addEventListener('input', ()=>{
       inputEl.style.height='auto';
-      inputEl.style.height = inputEl.scrollHeight+'px';
+      inputEl.style.height = inputEl.scrollHeight + 'px';
       updateCounter();
     });
     inputEl.addEventListener('keydown', e=>{
@@ -230,11 +238,12 @@
     });
     sendBtn.addEventListener('click', send);
 
-    // 匯出/清除/停止
-    exportTxt.onclick  = ()=>exportChat('txt');
-    clearBtn.onclick   = clearChat;
-    abortBtn.onclick   = ()=>controller?.abort();
+    // 工具列
+    exportTxt.onclick = ()=>exportChat('txt');
+    clearBtn.onclick  = clearChat;
+    abortBtn.onclick  = ()=>controller?.abort();
 
+    // ---- 常用函式 ----
     function updateCounter(){
       const len = (inputEl.value||'').length;
       counterEl.textContent = `${len} / ${MAX_CHARS}`;
@@ -251,7 +260,7 @@
       row.appendChild(bubble);
       chatEl.appendChild(row);
       chatEl.scrollTop = chatEl.scrollHeight;
-      window.scrollTo(0,document.body.scrollHeight);
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     }
 
     function setLoading(on){
@@ -286,6 +295,7 @@
       URL.revokeObjectURL(a.href);
     }
 
+    // ---- 發送 ----
     async function send(){
       const prompt = inputEl.value.trim();
       if (!prompt || prompt.length>MAX_CHARS) return;
@@ -296,6 +306,7 @@
 
       setLoading(true);
       controller = new AbortController();
+
       try{
         const res = await fetch(API_URL,{
           method:'POST',
@@ -303,11 +314,12 @@
           body: JSON.stringify({ contents: history }),
           signal: controller.signal
         });
+
         if (!res.ok){
-          let msg = `API ${res.status}`;
-          if (res.status===403) msg = '403 Forbidden（Key 無效或被限制）。';
-          throw new Error(msg);
+          const txt = await res.text().catch(()=> '');
+          throw new Error(`API ${res.status} ${res.statusText} ${txt ? '- ' + txt.slice(0,120) : ''}`);
         }
+
         const data = await res.json();
         const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '（無回應內容）';
         addMsg('bot', text);
@@ -321,6 +333,7 @@
       }
     }
 
+    // 啟動
     updateCounter();
   </script>
 </body>
