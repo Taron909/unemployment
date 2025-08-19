@@ -96,7 +96,7 @@
      */
     main {
       max-width: 1200px;
-      margin: 40px auto;
+      margin: 30px auto;
       padding: 0 20px;
     }
 
@@ -106,23 +106,30 @@
      */
     .title-left {
       text-align: left;
-      font-size: 1.2em;
+      font-size: 1em;
       font-weight: bold;
-      margin: 0 0 10px 0;
+      margin: 0 0 6px 0;
+      line-height: 1.4em;
     }
 
     .title-right {
       text-align: right;
-      font-size: 1.2em;
+      font-size: 1em;
       font-weight: bold;
       margin: 0 0 10px 0;
+      line-height: 1.4em;
     }
 
     .title-center-left {
+      display: flex;
+      align-items:center;
+      flex-wrap: wrap; /* 支援內容換行 */
+      justify-content: center; /* 區塊水平置中 */
       min-width: unset;       /* 移除 1000px 的最小寬度，避免大量留白 */
       max-width: 100%;
       margin-left: 0;
       margin-right: 0;
+      line-height: 1.4em;
     }
 
     .section {
@@ -136,24 +143,24 @@
     }
 
     .section-text {
-      flex: 1.2;
-      max-width: 1200px; /* 限制文字最大寬度 */
+      max-width: 800px; /* 限制文字最大寬度 */
       margin: 0 auto;
     }
 
     .section-text h2 {
       font-size: 1.2em;
-      margin-bottom: 5px;
+      margin-bottom: 0px;
     }
 
     .section-text ul {
       font-size: 0.7em;
-      line-height: 1.6em;
+      line-height: 1.4em;
       padding-left: 20px;
+      margin: 0 auto;
     }
     /* 介紹段落與卡片容器之間的垂直距離（更細緻控制） */
     .section + #cards {
-      margin-top: 8px;        /* 若仍覺得遠，這行可以再調更小 */
+      margin-top: 3px;        /* 若仍覺得遠，這行可以再調更小 */
     }
     /*
      * 翻轉卡片樣式
@@ -163,7 +170,7 @@
       background-color: transparent;
       width: 100%;
       max-width: 900px;
-      margin: 16px auto;
+      margin: 1px auto;
       perspective: 1000px; /* 啟用 3D 效果 */
     }
 
@@ -181,14 +188,14 @@
     }
 
     .card-image {
-      flex: 0 0 240px; /* 固定圖片寬度 */
-    }
-
-    .card-image img {
-      width: 100%;
-      
-      border-radius: 8px;
-    }
+          flex: 0 0 240px; /* 固定圖片寬度 */
+        }
+                      
+                          .card-image img {          
+          width: 100%;
+                    
+          border-radius: 8px;
+        }
 
     .card-text {
       flex: 1;
@@ -207,9 +214,11 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      margin: 40px 0;
-      gap: 40px;
+      margin: 5px 0;
+      gap: 10px;
       flex-wrap: wrap; /* 支援按鈕換行 */
+      margin-top: 10px;   /* 原本 40px，改小一點 */
+      margin-bottom: 10px; /* 保留一點底部空間 */
     }
 
     .nav-buttons button {
@@ -253,8 +262,13 @@
       }
     }
     
-
-    /*
+    :root { --footer-h: 68px; }          /* footer 高度（可依實際調） */
+       body { padding-bottom: var(--footer-h); }
+       
+       /* footer行高 5px 太擠，容易文字被截斷，調回正常閱讀值 */
+       .footer { line-height: 1.4; }
+       
+           /*
      * 響應式設計：針對不同螢幕寬度（如手機）進行調整
      */
     @media screen and (max-width: 768px) {
