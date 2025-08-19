@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <!-- viewport meta 標籤是響應式設計的基礎，它告訴瀏覽器頁面應如何縮放以適應設備寬度 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>智能諮詢室｜數據之下的現實：重新認識台灣失業率</title>
+  <!-- 引入 W3.CSS 樣式庫，用於導覽列和通用排版 -->
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <!-- 引入 Google Fonts 的思源黑體，作為主要字體 -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Sans+TC">
+  <!-- 引入 Tailwind CSS CDN，用於快速造型 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /*
+     * 通用樣式設定
+     * 設定全站字體、背景色、標題與導覽列樣式
+     */
+    body {
+      font-family: 'Noto Sans TC', sans-serif; /* 全站字體使用思源黑體 */
+      background-color: #fdfcd9; /* 背景色為柔和鵝黃色 */
+      margin: 0;
+      padding: 0;
+    }
+    h2 {
+      color: #21409a; /* 標題文字色為深藍色 */
+      margin-top: 40px;
+    }
+    canvas {
+      max-width: 100%; /* 圖表寬度隨容器調整 (此頁面雖無 canvas，但為通用樣式) */
+      margin-bottom: 40px;
+    }
+    .header {
+      background-color: #21409a; /* 頁首背景為深藍色 */
+      color: white; /* 文字顏色為白色 */
+      text-align: center; /* 文字置中 */
+      padding: 30px 0; /* 上下內邊距 */
+      font-size: 2em; /* 字體大小 */
+      font-weight: bold; /* 字體加粗 */
+    }
+    /* === 導覽列樣式設定 === */
+    nav {
+      background-color: #21409a; /* 導覽列背景為深藍色 */
+      display: flex; /* 使用 Flexbox 佈局 */
+      flex-wrap: wrap;             /* 導覽列換行以避免寬度超出，實現響應式 */
+      justify-content: center; /* 導覽項目水平置中 */
+    }
+    
+    nav a {
+      display: inline-block; /* 讓連結像區塊一樣可以設定寬高 */
+      line-height: 2em; /* 行高 */
+      padding: 30px 50px; /* 內邊距 */
+      color: white; /* 文字顏色為白色 */
+      text-decoration: none; /* 移除底線 */
+      font-weight: bold; /* 字體加粗 */
+      white-space: nowrap;         /* 防止文字換行 */
+      /* 自動縮放字體大小：視窗越小字越小，保持可讀性 */
+      font-size: clamp(0.9em, 2.5vw, 1.3em); 
+    }
+    
+    nav a:hover {
+      background-color: #880e4f; /* 滑鼠滑過為酒紅色 */
+    }
+    .w3-bar .active {
+      background-color: #800080 !important; /* 標示當前頁面為紫色 */
+      color: white !important; /* 文字顏色為白色 */
+    }
+    /*
+     * 頁尾樣式
+     * 固定在底部，確保在內容較短時頁尾也能顯示在正確位置
+     */
+    .footer {
+      background-color: #21409a; /* 頁尾背景為深藍色 */
+      color: white; /* 文字顏色為白色 */
+      text-align: center; /* 文字置中 */
+      padding: 16px; /* 內邊距 */
+      font-size: 0.95em; /* 字體大小 */
+      position: fixed;   /* 固定位置 */
+      bottom: 0;         /* 貼齊底部 */
+      left: 0;
+      width: 100%; /* 寬度佔滿 */
+      z-index: 10; /* 確保頁尾在其他內容之上 */
+      line-height:5px;  
+    }
+    .footer a {
+      color: white; /* 連結文字顏色為白色 */
+      text-decoration: underline; /* 連結帶底線 */
+    }
+    main {
+      max-width: 1200px; /* 主內容區塊最大寬度 */
+      margin: 40px auto; /* 上下外邊距 40px，左右自動 (置中) */
+      /* 為 main 底部添加足夠的 padding，防止被固定頁尾遮蓋 */
+      padding: 0 20px 80px 20px; /* 左右內邊距，底部額外留白 */
+    }
+    /* ===== 段落介紹樣式 (在 chatbot 頁面中未使用，但保留) ===== */
+    .section {
+      display: flex;
+      flex-wrap: wrap;             /* 換行支援 */
+      justify-content: center;     /* 區塊水平置中 */
+      padding: 5px;                /* 區塊留白 */
+      gap: 30px;                   /* 區塊間距 */
+    }
+    .section-text {
+      flex: 1.2;
+      max-width: 1200px;           /* 限制文字最大寬度 */
+      margin: 0 auto;
+    }
+    .section-text h2 {
+      font-weight: bold;
+      font-size: 1.2em;
+      margin-left: 5%;             /* 左邊留白 */
+      max-width: 900px;            /* 文字不超出容器 */
+    }
+    .section-text p {
+      margin-left: 10%;
+      max-width: 700px;
+      font-size: 1.2em;
+      line-height: 1.5em; /* 調整行高以避免文字重疊，原 0.5em 過小 */
+    }
+    /* ===== 翻轉卡片樣式 (在 chatbot 頁面中未使用，但保留) ===== */
+    .flip-card {
+      background-color: transparent;
+      width: 100%;
+      max-width: 1200px;
+      margin: 40px auto;
+      perspective: 1000px;
+    }
+    .card-content {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      padding: 20px;
+      gap: 20px;
+      transform: rotateY(0);
+      transition: transform 0.8s;
+    }
+    .card-image {
+      flex: 0 0 240px;
+    }
+    .card-image img {
+      width: 100%;
+      border-radius: 8px;
+    }
+    .card-text {
+      flex: 1;
+      font-size: 1.2em;
+      line-height: 2.5em;
+    }
+    .card-text b {
+      color: #880e4f;
+    }
+    /* ===== 頁面導覽按鈕樣式 (在 chatbot 頁面中未使用，但保留) ===== */
+    .nav-buttons {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 40px 0;
+      gap: 40px;
+    }
+    .nav-buttons button {
+      background-color: transparent;
+      border: none;
+      font-size: 2em;
+      cursor: pointer;
+    }
+    .page {
+      display: none;
+    }
+    .page.active {
+      display: block;
+      animation: flip 0.6s ease;
+    }
+    @keyframes flip {
+      from { transform: rotateY(-90deg); opacity: 0; }
+      to { transform: rotateY(0); opacity: 1; }
+    }
+    @media screen and (max-width: 768px) {
+      .card-content {
+        flex-direction: column;
+      }
+      .card-image {
+        flex: unset;
+        width: 100%;
+      }
+    }
+
+    /* === Gemini 聊天應用程式樣式 === */
+    .gemini-chat-body {
+        font-family: 'Inter', sans-serif; /* 使用 Inter 字體 */
+    }
+    /* 自定義滾動條樣式 */
+    /* 這些滾動條樣式現在將應用於整個頁面 */
+    ::-webkit-scrollbar {
+        width: 8px; /* 滾動條寬度 */
+    }
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1; /* 滾動條軌道背景色 */
+        border-radius: 10px; /* 圓角 */
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #888; /* 滾動條滑塊背景色 */
+        border-radius: 10px; /* 圓角 */
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555; /* 滾動條滑塊懸停背景色 */
+    }
+
+    /* 內嵌聊天容器 */
+    .inline-chat-container {
+        margin: 40px auto; /* 水平置中，上下外邊距 */
+        width: 100%; /* 寬度佔滿父容器 */
+        max-width: 800px; /* 調整為更寬的最大寬度 */
+        min-height: 600px; /* 新增最小高度 */
+        display: flex; /* Flexbox 佈局 */
+        flex-direction: column; /* 垂直排列子元素 */
+        background-color: white; /* 白色背景 */
+        border-radius: 1rem; /* 圓角 */
+        box-shadow: 0 10px 15px rgba(0,0,0,0.1); /* 陰影 */
+        /* 移除 overflow: hidden，讓內容可以超出容器並由頁面滾動 */
+    }
+
+    /* 聊天訊息顯示區域 */
+    .chat-messages {
+        flex-1; /* 讓聊天訊息區塊彈性佔用剩餘空間 */
+        overflow-y: auto; /* 垂直滾動條，當內容溢出時顯示 */
+        padding: 6px; /* 內邊距 */
+        /* space-y-4 是 Tailwind class，如果純 CSS 應轉換為 margin-bottom */
+        /* background-color: #f9fafb; /* 淺灰色背景 */
+    }
+    /* 為 chat-messages 內的每個訊息添加間距，因為 space-y-4 不是純 CSS */
+    .chat-messages > div + div {
+        margin-top: 1rem; /* 等同於 space-y-4 */
+    }
+
+
+    /* 響應式調整內嵌聊天容器 */
+    @media (max-width: 480px) {
+        .inline-chat-container {
+            width: 90%; /* 在小螢幕上調整為 90% 寬度 */
+        }
+        /* 調整 main 元素在小螢幕上的 padding，避免聊天室內容過於貼邊 */
+        main {
+            padding: 20px 10px 80px 10px; /* 縮小左右內邊距 */
+        }
+    }
+    /* 導覽列在小螢幕上的調整 */
+    @media screen and (max-width: 768px) {
+      nav {
+        flex-direction: column; /* 導覽列按鈕在小螢幕上改為垂直排列 */
+      }
+      nav a {
+        padding: 15px 20px; /* 縮小導覽列按鈕的填充 */
+      }
+    }
+  </style>
+</head>
+<body class="gemini-chat-body">
+  <header class="header">數據之下的現實：重新認識台灣失業率</header>
+  <!-- 導覽列區塊：提供頁面間的導覽功能 -->
+  <nav class="w3-bar w3-indigo">
+    <div class="nav-wrapper" style="display: flex; justify-content: center; gap: 0px;">
+      <!-- 導覽列按鈕：首頁，點擊會導向 index.html -->
+      <a href="index.html" class="w3-bar-item w3-button w3-hover-white">首頁</a>
+      <!-- 導覽列按鈕：趨勢分析，點擊會導向 trend.html -->
+      <a href="trend.html" class="w3-bar-item w3-button w3-hover-white">趨勢分析</a>
+      <!-- 導覽列按鈕：國家政策，點擊會導向 policy.html -->
+      <a href="policy.html" class="w3-bar-item w3-button w3-hover-white">國家政策</a>
+      <!-- 導覽列按鈕：實際案例，點擊會導向 case.html -->
+      <a href="case.html" class="w3-bar-item w3-button w3-hover-white">實際案例</a>
+      <!-- 導覽列按鈕：智能諮詢室，點擊會導向 chatbot.html，並標示為當前活躍頁面 -->
+      <a href="chatbot.html" class="w3-bar-item w3-button w3-hover-white active">智能諮詢室</a>
+    </div>
+  </nav>
+  <main>
+    <!-- Gemini 聊天應用程式整合 -->
+    <div id="inline-chat-container" class="inline-chat-container">
+      <!-- 聊天標題 -->
+      <div class="p-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-center text-2xl font-bold rounded-t-xl shadow-md">
+        Gemini 聊天室
+      </div>
+
+      <!-- 聊天訊息顯示區域 -->
+      <div id="chat-messages" class="chat-messages flex-1 overflow-y-auto p-6 bg-gray-50">
+        <!-- 訊息將會顯示在這裡 -->
+        <div class="flex justify-start">
+          <div class="bg-blue-100 text-blue-800 p-3 rounded-lg max-w-[80%] shadow-sm">
+            嗨！我是 Gemini，有什麼我可以幫助你的嗎？
+          </div>
+        </div>
+      </div>
+
+      <!-- 載入指示器 -->
+      <div id="loading-indicator" class="hidden flex justify-center items-center py-2">
+        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+        <span class="ml-2 text-gray-600">Gemini 正在思考...</span>
+      </div>
+
+      <!-- 訊息輸入區域 -->
+      <div class="p-4 border-t border-gray-200 flex items-center bg-white rounded-b-xl">
+        <textarea
+          id="user-input"
+          class="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none h-12 overflow-hidden transition-all duration-200"
+          placeholder="輸入你的訊息..."
+          rows="1"
+        ></textarea>
+        <button
+          id="send-button"
+          class="ml-3 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition-colors duration-200"
+        >
+          傳送
+        </button>
+      </div>
+    </div>
+  </main>
+  <!-- 頁尾區塊：聯絡資訊與版權聲明 -->
+  <footer class="footer">
+    📩 寄信給我 林宸緯 <a href="#" onclick="openGmail()">blue8841269@gmail.com</a>
+  </footer>
+  
+  <script type="module">
+    // 取得 DOM 元素
+    const chatMessages = document.getElementById('chat-messages');
+    const userInput = document.getElementById('user-input');
+    const sendButton = document.getElementById('send-button');
+    const loadingIndicator = document.getElementById('loading-indicator');
+
+    // 聊天記錄
+    let chatHistory = [];
+
+    // 添加訊息到聊天室
+    function addMessage(sender, text) {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('flex', sender === 'user' ? 'justify-end' : 'justify-start');
+
+        const messageBubble = document.createElement('div');
+        // 修正：將類別名稱分開添加，避免 InvalidCharacterError
+        const commonClasses = ['p-3', 'rounded-lg', 'max-w-[80%]', 'shadow-sm'];
+        const senderClasses = sender === 'user' ? ['bg-blue-500', 'text-white'] : ['bg-gray-200', 'text-gray-800'];
+        messageBubble.classList.add(...commonClasses, ...senderClasses);
+        
+        messageBubble.textContent = text;
+
+        messageDiv.appendChild(messageBubble);
+        chatMessages.appendChild(messageDiv);
+
+        // 自動滾動到底部
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        // 如果聊天室內容導致整個頁面滾動，確保頁面也滾動到底部
+        window.scrollTo(0, document.body.scrollHeight); 
+    }
+
+    // 處理傳送訊息
+    async function sendMessage() {
+        const prompt = userInput.value.trim();
+        if (!prompt) return;
+
+        addMessage('user', prompt);
+        userInput.value = ''; // 清空輸入框
+        loadingIndicator.classList.remove('hidden'); // 顯示載入指示器
+        sendButton.disabled = true; // 禁用傳送按鈕
+        userInput.disabled = true; // 禁用輸入框
+
+        chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+
+        const payload = { contents: chatHistory };
+        const apiKey = "AIzaSyBoFmlsnaABMBbn-r3w_49SzZlksRrHazA"; // 已更新為您提供的金鑰
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+        let retries = 0;
+        const maxRetries = 5;
+        const initialDelay = 1000; // 1秒
+
+        while (retries < maxRetries) {
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    // 如果是 429 Too Many Requests 錯誤，則重試
+                    if (response.status === 429) {
+                        const delay = initialDelay * Math.pow(2, retries);
+                        console.warn(`收到 429 錯誤，將在 ${delay / 1000} 秒後重試...`);
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        retries++;
+                        continue; // 繼續下一次循環進行重試
+                    } else {
+                        throw new Error(`API 錯誤: ${response.status} ${response.statusText}`);
+                    }
+                }
+
+                const result = await response.json();
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const geminiResponse = result.candidates[0].content.parts[0].text;
+                    addMessage('gemini', geminiResponse);
+                    chatHistory.push({ role: "model", parts: [{ text: geminiResponse }] });
+                } else {
+                    addMessage('gemini', '抱歉，我無法理解你的問題。');
+                    console.error('Gemini API 回應結構不符預期:', result);
+                }
+                break; // 成功後跳出循環
+            } catch (error) {
+                console.error('呼叫 Gemini API 時發生錯誤:', error);
+                addMessage('gemini', '抱歉，與 Gemini 連線時發生錯誤。請稍後再試。');
+                break; // 出現其他錯誤時也跳出循環
+            } finally {
+                loadingIndicator.classList.add('hidden'); // 隱藏載入指示器
+                sendButton.disabled = false; // 啟用傳送按鈕
+                userInput.disabled = false; // 啟用輸入框
+                userInput.focus(); // 輸入框重新獲得焦點
+            }
+        }
+    }
+
+    // 監聽傳送按鈕點擊事件
+    sendButton.addEventListener('click', sendMessage);
+
+    // 監聽 Enter 鍵盤事件
+    userInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault(); // 防止換行
+            sendMessage();
+        }
+    });
+
+    // 自動調整 textarea 高度
+    userInput.addEventListener('input', () => {
+        userInput.style.height = 'auto';
+        userInput.style.height = userInput.scrollHeight + 'px';
+    });
+
+    // 以下是 TTS 相關的輔助函數，目前未使用，但可供未來擴展
+    function base64ToArrayBuffer(base64) {
+        const binaryString = window.atob(base64);
+        const len = binaryString.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        return bytes.buffer;
+    }
+
+    function pcmToWav(pcmData, sampleRate) {
+        const numChannels = 1; // 單聲道
+        const bytesPerSample = 2; // 16 位元 PCM
+
+        const wavHeader = new ArrayBuffer(44);
+        const view = new DataView(wavHeader);
+
+        // RIFF chunk
+        writeString(view, 0, 'RIFF');
+        view.setUint32(4, 36 + pcmData.byteLength, true); // ChunkSize
+        writeString(view, 8, 'WAVE');
+
+        // FMT chunk
+        writeString(view, 12, 'fmt ');
+        view.setUint32(16, 16, true); // Subchunk1Size (16 for PCM)
+        view.setUint16(20, 1, true); // AudioFormat (1 for PCM)
+        view.setUint16(22, numChannels, true);
+        view.setUint32(24, sampleRate, true);
+        view.setUint32(28, sampleRate * numChannels * bytesPerSample, true); // ByteRate
+        view.setUint16(32, numChannels * bytesPerSample, true); // BlockAlign
+        view.setUint16(34, bytesPerSample * 8, true); // BitsPerSample
+
+        // DATA chunk
+        writeString(view, 36, 'data');
+        view.setUint32(40, pcmData.byteLength, true); // Subchunk2Size
+
+        const blob = new Blob([wavHeader, pcmData], { type: 'audio/wav' });
+        return blob;
+    }
+
+    function writeString(view, offset, string) {
+        for (let i = 0; i < string.length; i++) {
+            view.setUint8(offset + i, string.charCodeAt(i));
+        }
+    }
+
+    /**
+     * @description 開啟 Gmail 撰寫新郵件視窗，並預設收件人、主旨及內文。
+     */
+    function openGmail() {
+      const email = "blue8841269@gmail.com";
+      const subject = encodeURIComponent("主旨預設文字");
+      const body = encodeURIComponent("您好，我想了解有關台灣失業率資料的更多細節...");
+      const gmailURL = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${subject}&body=${body}`;
+      window.open(gmailURL, '_blank');
+    }
+  </script>
+</body>
+</html>

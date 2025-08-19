@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>政策演進卡片｜台灣失業率</title>
+
+  <!-- 引入 W3.CSS 樣式庫，用於簡易排版與響應式設計 -->
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <!-- 引入 Google Fonts 的思源黑體，作為主要字體 -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Sans+TC">
+
+  <style>
+    /*
+     * 通用樣式設定
+     * 設定全站字體、背景色、主要色調
+     */
+    body {
+      font-family: 'Noto Sans TC', sans-serif; /* 全站字體使用思源黑體 */
+      background-color: #fdfcd9; /* 背景色為柔和鵝黃色 */
+      margin: 0;
+      padding: 0;
+    }
+
+    h2 {
+      color: #21409a; /* 標題文字色為深藍色 */
+      margin-top: 40px;
+    }
+
+    /*
+     * 頁首標題樣式
+     */
+    .header {
+      background-color: #21409a;
+      color: white;
+      text-align: center;
+      padding: 30px 0;
+      font-size: 2em;
+      font-weight: bold;
+    }
+
+    /*
+     * 導覽列樣式
+     * 使用 Flexbox 實現水平置中與內容換行
+     */
+    nav {
+      background-color: #21409a;
+      display: flex;
+      flex-wrap: wrap; /* 內容過長時自動換行 */
+      justify-content: center;
+    }
+
+    nav a {
+      line-height: 2em;
+      padding: 30px 50px;
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      white-space: nowrap; /* 防止按鈕文字換行 */
+      font-size: clamp(0.9em, 2.5vw, 1.3em); /* 彈性字體大小，在不同螢幕尺寸下自動縮放 */
+    }
+
+    nav a:hover {
+      background-color: #880e4f; /* 滑鼠移入時背景變為酒紅色 */
+    }
+
+    .w3-bar .active {
+      background-color: #800080 !important; /* 標示當前頁面為紫色 */
+      color: white !important;
+    }
+
+    /*
+     * 頁尾樣式
+     * 固定在底部，確保在內容較短時頁尾也能顯示在正確位置
+     */
+    .footer {
+      background-color: #21409a; /* 頁尾背景為深藍色 */
+      color: white; /* 文字顏色為白色 */
+      text-align: center; /* 文字置中 */
+      padding: 16px; /* 內邊距 */
+      font-size: 0.95em; /* 字體大小 */
+      position: fixed;   /* 固定位置 */
+      bottom: 0;         /* 貼齊底部 */
+      left: 0;
+      width: 100%; /* 寬度佔滿 */
+      z-index: 10; /* 確保頁尾在其他內容之上 */
+      line-height:5px;      
+    }
+    .footer a {
+      color: white; /* 連結文字顏色為白色 */
+      text-decoration: underline; /* 連結帶底線 */
+    }
+    /*
+     * 主內容區塊設定
+     * 設定整體內容容器的最大寬度與置中
+     */
+    main {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    /*
+     * 介紹段落樣式
+     * 包含不同對齊方式的標題與內文
+     */
+    .title-left {
+      text-align: left;
+      font-size: 1.2em;
+      font-weight: bold;
+      margin: 0 0 10px 0;
+    }
+
+    .title-right {
+      text-align: right;
+      font-size: 1.2em;
+      font-weight: bold;
+      margin: 0 0 10px 0;
+    }
+
+    .title-center-left {
+      min-width: unset;       /* 移除 1000px 的最小寬度，避免大量留白 */
+      max-width: 100%;
+      margin-left: 0;
+      margin-right: 0;
+    }
+
+    .section {
+      display: flex;
+      align-items:center;
+      flex-wrap: wrap; /* 支援內容換行 */
+      justify-content: center; /* 區塊水平置中 */
+      padding: 3px; /* 區塊留白 */
+      gap: 16px; /* 區塊間距 */
+      
+    }
+
+    .section-text {
+      flex: 1.2;
+      max-width: 1200px; /* 限制文字最大寬度 */
+      margin: 0 auto;
+    }
+
+    .section-text h2 {
+      font-size: 1.2em;
+      margin-bottom: 5px;
+    }
+
+    .section-text ul {
+      font-size: 0.7em;
+      line-height: 1.6em;
+      padding-left: 20px;
+    }
+    /* 介紹段落與卡片容器之間的垂直距離（更細緻控制） */
+    .section + #cards {
+      margin-top: 8px;        /* 若仍覺得遠，這行可以再調更小 */
+    }
+    /*
+     * 翻轉卡片樣式
+     * 用於展示政策演進的互動式卡片
+     */
+    .flip-card {
+      background-color: transparent;
+      width: 100%;
+      max-width: 900px;
+      margin: 16px auto;
+      perspective: 1000px; /* 啟用 3D 效果 */
+    }
+
+    .card-content {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      padding: 24px;
+      gap: 16px;
+      transform: rotateY(0);
+      transition: transform 0.8s; /* 過渡效果 */
+    }
+
+    .card-image {
+      flex: 0 0 240px; /* 固定圖片寬度 */
+    }
+
+    .card-image img {
+      width: 100%;
+      
+      border-radius: 8px;
+    }
+
+    .card-text {
+      flex: 1;
+      font-size: 0.8em;
+      line-height: 2em;
+    }
+
+    .card-text b {
+      color: #880e4f; /* 強調文字為酒紅色 */
+    }
+
+    /*
+     * 頁面導覽按鈕樣式
+     */
+    .nav-buttons {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 40px 0;
+      gap: 40px;
+      flex-wrap: wrap; /* 支援按鈕換行 */
+    }
+
+    .nav-buttons button {
+      background-color: transparent;
+      border: none;
+      font-size: 2em;
+      line-height: 0.5em;
+      cursor: pointer;
+      color: #21409a; /* 按鈕顏色與主色調一致 */
+    }
+
+    .nav-buttons button:hover {
+      color: #880e4f; /* 滑鼠移入時變為酒紅色 */
+    }
+
+    .page-indicator {
+      font-weight: bold;
+      font-size: 1em;
+      color: #21409a;
+    }
+
+    /* 頁面切換效果 */
+    .page {
+      display: none; /* 預設隱藏所有頁面 */
+    }
+
+    .page.active {
+      display: block; /* 顯示當前啟用頁面 */
+      animation: flip 0.6s ease; /* 啟用翻轉動畫 */
+    }
+
+    @keyframes flip {
+      from {
+        transform: rotateY(-90deg);
+        opacity: 0;
+      }
+
+      to {
+        transform: rotateY(0);
+        opacity: 1;
+      }
+    }
+    
+
+    /*
+     * 響應式設計：針對不同螢幕寬度（如手機）進行調整
+     */
+    @media screen and (max-width: 768px) {
+      .card-content {
+        flex-direction: column; /* 卡片內容改為垂直排列 */
+      }
+
+      .card-image {
+        flex: unset;
+        width: 100%;
+      }
+
+      .title-left,
+      .title-right,
+      .title-center-left {
+        min-width: unset; /* 移除最小寬度限制 */
+        max-width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+        text-align: center; /* 標題文字置中 */
+        font-size: 1.2em; /* 調整字體大小 */
+      }
+
+      .section-text {
+        text-align: center; /* 內文置中 */
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">數據之下的現實：重新認識台灣失業率</header>
+
+  <!-- 導覽列區塊：提供頁面間的導覽功能 -->
+  <nav class="w3-bar w3-indigo">
+    <a href="index.html" class="w3-bar-item w3-button w3-hover-white">首頁</a>
+    <a href="trend.html" class="w3-bar-item w3-button w3-hover-white">趨勢分析</a>
+    <a href="policy.html" class="w3-bar-item w3-button w3-hover-white active">國家政策</a>
+    <a href="case.html" class="w3-bar-item w3-button w3-hover-white">實際案例</a>
+    <a href="chatbot.html" class="w3-bar-item w3-button w3-hover-white">智能諮詢室</a>
+  </nav>
+
+  <main>
+    <!-- 頁面介紹段落 -->
+    <section class="section">
+      <div class="section-text">
+        <h2 class="title-left">失業率的背後，是政府不斷推出的各項政策來穩定民生與就業市場。</h2>
+        <h2 class="title-right">這些政策短期應急、長期制度建構，每一項都記錄著台灣經濟與社會的關鍵轉折。</h2>
+        <h2 class="title-center-left"><i>台灣政府自1978年到2024年，因應失業問題，政策內容與策略不斷演進，針對不同時期的內外挑戰設計多元措施，以下分階段詳細補充歷年政策內容：</i></h2>
+      </div>
+    </section>
+
+    <!-- 政策演進卡片區塊 -->
+    <div id="cards">
+      <!-- 政策卡片 1：經濟起飛與法制建構 (1978-1980年代) -->
+      <section class="page active">
+        <div class="flip-card">
+          <div class="card-content">
+            <div class="card-image">
+              <img src="Unemployment_5.jpg" alt="經濟起飛時期政策圖片">
+            </div>
+            <div class="card-text">
+              <h5><p>📅 1978-1980年代：經濟起飛與法制建構</p></h5>
+              失業率長期維持低檔（約2%以下），政策重點在推動經濟成長、產業升級，促進就業機會。<br>
+              設立公立職業訓練中心，提供失業者職業技能再訓練。<br>
+              1984年頒布《勞動基準法》，開始保障工資、工時、解僱程序等基本勞工權益，並建立工安制度。
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 政策卡片 2：全球化衝擊與服務機制建構 (1990年代) -->
+      <section class="page">
+        <div class="flip-card">
+          <div class="card-content">
+            <div class="card-image">
+              <img src="Unemployment_6.jpg" alt="全球化衝擊時期政策圖片">
+            </div>
+            <div class="card-text">
+              <h5><p>📅1990年代：全球化衝擊與服務機制建構</p></h5>
+              產業外移導致結構性失業上升，政府於1992年開放聘用外籍移工補足基層勞動力。<br>
+              強化勞動力轉型輔導，擴大職業訓練內容，逐步建立全國就業服務中心，提升就業諮詢與媒合效率。<br>
+              建置失業人員再就業輔導體系，提供資訊透明、轉職訓練方案。
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 政策卡片 3：金融危機與安全網制度 (1998-2008年) -->
+      <section class="page">
+        <div class="flip-card">
+          <div class="card-content">
+            <div class="card-image">
+              <img src="Unemployment_7.jpg" alt="金融危機時期政策圖片">
+            </div>
+            <div class="card-text">
+              <h5><p>📅 1998-2008年：金融危機與安全網制度</p></h5>
+              亞洲金融風暴、網路泡沫等經濟危機造成失業率急升。<br>
+              發動「公共工程就業」、「短期就業補助」、「緊急僱用計畫」等大規模創造就業機會方案。<br>
+              1999年《就業保險法》實施，正式建立失業給付、職業訓練津貼、再就業獎勵等制度。<br>
+              針對青年、中高齡、弱勢群體，不斷推出針對性職業訓練和就業促進方案。
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 政策卡片 4：金融海嘯下的臨時措施 (2008-2010年) -->
+      <section class="page">
+        <div class="flip-card">
+          <div class="card-content">
+            <div class="card-image">
+              <img src="Unemployment_8.jpg" alt="金融海嘯時期政策圖片">
+            </div>
+            <div class="card-text">
+              <h5><p>📅 2008-2010年：金融海嘯下的臨時措施</p></h5>
+              全球金融危機重創實體經濟，失業率一度攀升至5.85%（2009）。<br>
+              政府推動消費券政策、擴大公共建設、短工時補貼等，協助企業減少裁員、穩定就業市場。<br>
+              落實產業人才培育、在職訓練補助等支持措施。
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 政策卡片 5：結構優化與多元彈性 (2010-2020年) -->
+      <section class="page">
+        <div class="flip-card">
+          <div class="card-content">
+            <div class="card-image">
+              <img src="Unemployment_9.jpg" alt="結構優化時期政策圖片">
+            </div>
+            <div class="card-text">
+              <h5><p>📅 2010-2020年：結構優化與多元彈性</p></h5>
+              統合就業及職業訓練資源，成立「勞動力發展署」。<br>
+              推動數位、科技、高齡人才培訓，強化青年、銀髮、非典型勞動參與。<br>
+              彈性工時、兼職保障法制化，逐步建構完整就業安全網與職業培力體系。<br>
+              多元就業開發方案、企業僱用獎助措施等，鼓勵企業僱用弱勢與失業者。
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 政策卡片 6：疫情防控與產業轉型 (2020-2024年) -->
+      <section class="page">
+        <div class="flip-card">
+          <div class="card-content">
+            <div class="card-image">
+              <img src="Unemployment_10.jpg" alt="疫情防控與產業轉型時期政策圖片">
+            </div>
+            <div class="card-text">
+              <h5><p>📅 2020-2024年：疫情防控與產業轉型</p></h5>
+              COVID-19疫情使失業率短暫升高，尤其觀光、餐飲服務業受創。<br>
+              政府推出「安心即時上工」、「充電再出發訓練計畫」、「工時調減補助」、「紓困貸款」等應急與振興方案。<br>
+              加強失業給付流程簡化，擴大臨時就業與弱勢保障名額。<br>
+              推動疫後產業轉型與勞動力再訓練，加強數位、半導體等新興產業就業方案。
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- 頁碼導覽按鈕區塊 -->
+    <div class="nav-buttons">
+      <button onclick="changePage(-1)">⟸</button>
+      <div class="page-indicator">第 <span id="pageNum">1</span> / 6 頁</div>
+      <button onclick="changePage(1)">⟹</button>
+    </div>
+
+    <!-- 核心政策類型與主要變革方向說明 -->
+    <section class="section">
+      <div class="section-text" style="display: flex; gap: 40px; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 280px;">
+          <h2><b>核心政策類型與細節補充</b></h2>
+          <ul>
+            <li>短期救急型措施：緊急公共就業、失業給付、工時減縮補貼、消費券等，快速舒緩大規模失業衝擊。</li>
+            <li>結構轉型與長期培力：職業再訓練、學用落差改善、產業人才培育、就業促進配套等。</li>
+            <li>弱勢與特殊群體協助：專案訓練、獎助僱用原住民、身障、中高齡、青年等，擴大社會安全網。</li>
+            <li>制度建設與創新：推動就業保險、勞退新制、職業訓練法制改革、就業促進平台、大數據媒合。</li>
+          </ul>
+        </div>
+        <div style="flex: 1; min-width: 280px;">
+          <h2><b>主要變革方向</b></h2>
+          <ul>
+            <li>從單一職訓、低度保險，逐步走向多元培力、完整安全網與產業策略結合。</li>
+            <li>逐步強化結構性、短期性失業的量身方案，結合政策彈性、社會資源和數位工具。</li>
+            <li>危機時強化救急，平時聚焦產業升級與人力素質培訓，促進勞動市場韌性。</li>
+            <li>這些歷年政策展現台灣政府高度動態調適、兼顧短長期和弱勢、結合產業發展的失業因應策略。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 頁尾區塊：聯絡資訊與版權聲明 -->
+  <footer class="footer">
+    📩 寄信給我 林宸緯 <a href="#" onclick="openGmail()">blue8841269@gmail.com</a>
+  </footer>
+
+  <script>
+    const pages = document.querySelectorAll('.page');
+    let currentPage = 0;
+
+    /**
+     * @description 根據索引值顯示對應的政策卡片頁面，並更新頁碼顯示。
+     * @param {number} index - 欲顯示頁面的索引值 (從 0 開始)。
+     */
+    function showPage(index) {
+      pages.forEach((p, i) => {
+        p.classList.toggle('active', i === index);
+      });
+      document.getElementById('pageNum').textContent = index + 1;
+      currentPage = index;
+    }
+
+    /**
+     * @description 根據傳入的增減值切換到上/下一頁的政策卡片。
+     * @param {number} delta - 頁碼增減值，例如 1 為下一頁，-1 為上一頁。
+     */
+    function changePage(delta) {
+      currentPage = (currentPage + delta + pages.length) % pages.length;
+      showPage(currentPage);
+    }
+
+    // 頁面載入時，預設顯示第一頁卡片
+    showPage(currentPage);
+
+    /**
+     * @description 開啟 Gmail 撰寫新郵件視窗，並預設收件人、主旨及內文。
+     */
+    function openGmail() {
+      const email = "blue8841269@gmail.com";
+      const subject = encodeURIComponent("主旨預設文字");
+      const body = encodeURIComponent("您好，我想了解有關台灣失業率資料的更多細節...");
+      const gmailURL = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${subject}&body=${body}`;
+      window.open(gmailURL, '_blank');
+    }
+  </script>
+</body>
+</html>

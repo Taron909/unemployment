@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>實際案例｜數據之下的現實：重新認識台灣失業率</title>
+
+  <!-- 核心樣式：引入 Bootstrap 5.3.0 CSS、W3.CSS 和 Google Fonts 思源黑體 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Sans+TC" />
+
+  <style>
+    /*
+     * 全站基礎樣式與 CSS 變數定義
+     * 定義品牌色、通用字體、背景色及基礎 HTML/Body 樣式
+     */
+    :root {
+      --brand-blue: #21409a; /* 主品牌藍色 */
+      --brand-ink: #133955; /* 深墨藍色，用於文字或邊框 */
+      --brand-accent: #d65b29; /* 品牌強調色，用於按鈕等互動元素 */
+      --bg-cream: #fdfcd9; /* 柔和鵝黃色背景 */
+    }
+
+    html,
+    body {
+      height: 100%; /* 確保 html 和 body 佔滿整個視窗高度 */
+    }
+
+    body {
+      font-family: 'Noto Sans TC', system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif; /* 全站字體使用思源黑體及通用無襯線字體 */
+      background-color: var(--bg-cream); /* 背景色使用定義的變數 */
+      margin: 0;
+    }
+
+    /* 頁首標題樣式 */
+    .header {
+      background: var(--brand-blue); /* 背景色使用品牌藍色 */
+      color: #fff;
+      text-align: center;
+      padding: 28px 16px;
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: 0.5px; /* 增加字元間距 */
+    }
+
+    /*
+     * 導覽列樣式
+     * 使用 Flexbox 實現水平置中與內容換行
+     /* === 導覽列樣式設定 === */
+         nav {
+           background-color: #21409a; /* 導覽列背景為深藍色 */
+           display: flex; /* 使用 Flexbox 佈局 */
+           flex-wrap: wrap;             /* 導覽列換行以避免寬度超出，實現響應式 */
+           justify-content: center; /* 導覽項目水平置中 */
+         }
+         
+         nav a {
+           display: inline-block; /* 讓連結像區塊一樣可以設定寬高 */
+           line-height: 2em; /* 行高 */
+           padding: 30px 50px; /* 內邊距 */
+           color: white; /* 文字顏色為白色 */
+           text-decoration: none; /* 移除底線 */
+           font-weight: bold; /* 字體加粗 */
+           white-space: nowrap;         /* 防止文字換行 */
+           /* 自動縮放字體大小：視窗越小字越小，保持可讀性 */
+           font-size: clamp(0.9em, 2.5vw, 1.3em); 
+         }
+         
+         nav a:hover {
+           background-color: #880e4f; /* 滑鼠滑過為酒紅色 */
+         }
+         .w3-bar .active {
+           background-color: #800080 !important; /* 標示當前頁面為紫色 */
+           color: white !important; /* 文字顏色為白色 */
+         }
+
+    /*
+     * 主要內容區塊容器樣式
+     * 設定最小高度以確保頁尾被推到底部
+     */
+    .page-wrap {
+      min-height: calc(100vh - 200px); /* 確保內容區塊至少佔據視窗高度減去頁首和頁尾的高度 */
+      padding-bottom: 32px; /* 底部內距，避免內容與頁尾重疊 */
+    }
+
+    /*
+     * 表格卡片容器樣式
+     * 為表格添加卡片視覺效果
+     */
+    .table-card {
+      background: #fff;
+      border-radius: 14px; /* 圓角邊框 */
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08); /* 輕微陰影 */
+      padding: 16px;
+    }
+
+    /*
+     * 表格美化樣式
+     * 針對 Bootstrap 表格的客製化樣式，使其更具設計感
+     */
+    .table {
+      border-collapse: separate; /* 允許邊框間距 */
+      border-spacing: 0; /* 移除單元格間距 */
+      overflow: hidden; /* 隱藏超出內容，配合圓角 */
+      margin: 0;
+      background: #fff;
+    }
+
+    .table thead th {
+      background: var(--brand-blue); /* 表頭背景色使用品牌藍色 */
+      color: #fff;
+      border: 0; /* 移除預設邊框 */
+      font-weight: 800;
+      letter-spacing: 0.3px;
+      vertical-align: middle; /* 文字垂直置中 */
+    }
+
+    .table thead th:first-child {
+      border-top-left-radius: 10px; /* 左上角圓角 */
+    }
+
+    .table thead th:last-child {
+      border-top-right-radius: 10px; /* 右上角圓角 */
+    }
+
+    .table tbody td {
+      border-color: #e9eef3 !important; /* 調整表格內邊框顏色 */
+      vertical-align: top; /* 內容垂直靠上對齊 */
+    }
+
+    .table tbody tr:nth-child(even) td {
+      background: #fafbfd; /* 偶數行背景色 */
+    }
+
+    .table tbody tr:hover td {
+      background: #f5f7fb; /* 懸停時背景色 */
+    }
+
+    .table .col-id {
+      width: 88px; /* 案例編號欄位寬度 */
+    }
+
+    .table .col-more {
+      width: 110px; /* 更多按鈕欄位寬度 */
+    }
+
+    .btn-more {
+      background: var(--brand-accent); /* 按鈕背景色使用品牌強調色 */
+      border: none;
+      color: #fff;
+      padding: 0.45rem 0.8rem;
+      border-radius: 8px;
+      font-weight: 700;
+      transition: transform 0.05s ease, filter 0.2s ease; /* 過渡動畫效果 */
+    }
+
+    .btn-more:hover {
+      filter: brightness(0.95); /* 懸停時亮度降低 */
+    }
+
+    .btn-more:active {
+      transform: translateY(1px); /* 點擊時下壓效果 */
+    }
+
+    /*
+     * Modal（彈出視窗）美化樣式
+     */
+    .modal-content {
+      border: 0;
+      border-radius: 16px; /* 圓角邊框 */
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18); /* 較大陰影 */
+    }
+
+    .modal-header {
+      border: 0;
+      padding: 20px 22px 10px; /* 調整內距 */
+    }
+
+    .modal-title {
+      color: var(--brand-blue); /* 標題顏色使用品牌藍色 */
+      font-weight: 800;
+      letter-spacing: 0.3px;
+      line-height: 1.35;
+    }
+
+    .modal-body {
+      padding: 8px 22px 18px; /* 調整內距 */
+    }
+
+    /* 彈出視窗內容排版：圖片左側、文字右側；手機版自動堆疊 */
+    .case-body {
+      display: flex;
+      gap: 18px; /* 圖片與文字間距 */
+      align-items: flex-start; /* 頂部對齊 */
+      flex-wrap: wrap; /* 內容過長時自動換行 */
+    }
+
+    .case-cover {
+      flex: 0 0 200px; /* 固定圖片寬度 */
+      max-width: 200px;
+    }
+
+    .case-cover img {
+      width: 100%;
+      border-radius: 10px; /* 圖片圓角 */
+      display: block;
+    }
+
+    .case-text {
+      flex: 1 1 320px; /* 文字區塊彈性成長，最小寬度 320px */
+      min-width: 260px;
+      line-height: 1.9;
+      color: #333;
+    }
+
+    .case-text h6 {
+      margin: 0.6rem 0 0.3rem;
+      font-weight: 800;
+      color: var(--brand-ink); /* 小標題顏色使用深墨藍色 */
+    }
+
+    .case-text ul {
+      margin: 0.25rem 0 0.75rem;
+    }
+
+    .case-text li {
+      margin: 0.2rem 0;
+    }
+
+    /* 黃色重點提示框樣式 */
+    .note-box {
+      background: #fff7c2; /* 黃色背景 */
+      border-left: 6px solid var(--brand-ink); /* 左側深墨藍色邊框 */
+      border-radius: 12px;
+      padding: 14px 16px;
+      box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.04); /* 輕微內陰影 */
+      line-height: 1.9;
+      font-size: 1rem;
+      margin-top: 0.25rem;
+    }
+
+    .note-box b {
+      font-weight: 800;
+      color: #880e4f; /* 粗體文字為酒紅色 */
+    }
+
+    /* 彈出視窗底部外連連結樣式 */
+    .modal-footer-link {
+      display: flex;
+      justify-content: flex-end; /* 靠右對齊 */
+      padding: 0 22px 20px;
+    }
+
+    .modal-footer-link a {
+      color: #fff;
+      background: var(--brand-blue); /* 背景色使用品牌藍色 */
+      border-radius: 9px;
+      padding: 0.5rem 0.85rem;
+      text-decoration: none;
+      font-weight: 800;
+    }
+
+    .modal-footer-link a:hover {
+      background: #1a3280; /* 懸停時變深藍色 */
+    }
+
+    /*
+     * 頁尾樣式
+     * 固定在底部，確保在內容較短時頁尾也能顯示在正確位置
+     */
+    .footer {
+      background-color: #21409a; /* 頁尾背景為深藍色 */
+      color: white; /* 文字顏色為白色 */
+      text-align: center; /* 文字置中 */
+      padding: 16px; /* 內邊距 */
+      font-size: 0.95em; /* 字體大小 */
+      position: fixed;   /* 固定位置 */
+      bottom: 0;         /* 貼齊底部 */
+      left: 0;
+      width: 100%; /* 寬度佔滿 */
+      z-index: 10; /* 確保頁尾在其他內容之上 */
+      line-height:5px;      
+    }
+    .footer a {
+      color: white; /* 連結文字顏色為白色 */
+      text-decoration: underline; /* 連結帶底線 */
+    }
+
+    /*
+     * 響應式設計：針對不同螢幕寬度進行調整
+     */
+    @media (max-width: 992px) {
+      nav.w3-bar a {
+        padding: 14px 18px !important; /* 導覽列按鈕內距調整 */
+      }
+    }
+
+    @media (max-width: 768px) {
+      .case-cover {
+        flex-basis: 100%; /* 圖片佔滿寬度 */
+        max-width: 100%;
+      }
+
+      .case-text {
+        flex-basis: 100%; /* 文字佔滿寬度 */
+      }
+
+      .table {
+        font-size: 0.92rem; /* 縮小表格字體 */
+      }
+    }
+
+    @media (max-width: 480px) {
+      .btn-more {
+        width: 100%; /* 按鈕佔滿寬度 */
+      }
+
+      .table thead th,
+      .table tbody td {
+        padding: 0.65rem 0.6rem; /* 調整表格單元格內距 */
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">數據之下的現實：重新認識台灣失業率</header>
+
+  <!-- 導覽列區塊：提供頁面間的導覽功能 -->
+  <nav class="w3-bar w3-indigo">
+    <a href="index.html" class="w3-bar-item w3-button w3-hover-white">首頁</a>
+    <a href="trend.html" class="w3-bar-item w3-button w3-hover-white">趨勢分析</a>
+    <a href="policy.html" class="w3-bar-item w3-button w3-hover-white">國家政策</a>
+    <a href="case.html" class="w3-bar-item w3-button w3-hover-white active">實際案例</a>
+    <a href="chatbot.html" class="w3-bar-item w3-button w3-hover-white">智能諮詢室</a>
+  </nav>
+
+  <main class="page-wrap">
+    <div class="container py-4">
+      <div class="table-card">
+        <div class="table-responsive">
+          <table class="table table-bordered align-middle text-start">
+            <thead>
+              <tr class="text-center">
+                <th class="col-id">案例</th>
+                <th>目標族群</th>
+                <th>政策方案／機制</th>
+                <th>成效或特色成功描述</th>
+                <th class="col-more text-center">更多</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="text-center">案例一</td>
+                <td>青年（成大畢業生，初次尋職）</td>
+                <td>「初次尋職青年穩定就業計畫」；YS中心一對一職涯諮詢（生涯建構訪談）</td>
+                <td>釐清職涯方向，轉職實驗教育機構科學老師；獲最高4.5萬尋職津貼與就業獎勵金。</td>
+                <td class="text-center"><button class="btn-more" data-bs-toggle="modal" data-bs-target="#case1Modal">查看更多</button></td>
+              </tr>
+              <tr>
+                <td class="text-center">案例二</td>
+                <td>青年（高階銲接人才）</td>
+                <td>中彰投分署客製化培訓、技能檢定與就業媒合</td>
+                <td>四年扎實訓練，晉級「第55屆全國技能競賽」二階國手選拔，專業度大幅提升。</td>
+                <td class="text-center"><button class="btn-more" data-bs-toggle="modal" data-bs-target="#case2Modal">查看更多</button></td>
+              </tr>
+              <tr>
+                <td class="text-center">案例三</td>
+                <td>高齡者（73歲退休者）</td>
+                <td>銀髮人才資源中心媒合、雇主僱用獎助、職場師徒制</td>
+                <td>克服年齡與求職障礙，重返職場任廠務助理；補助與師徒制促成銀髮友善職場。</td>
+                <td class="text-center"><button class="btn-more" data-bs-toggle="modal" data-bs-target="#case3Modal">查看更多</button></td>
+              </tr>
+              <tr>
+                <td class="text-center">案例四</td>
+                <td>中高齡婦女（二度就業，具幼兒音樂律動經驗）</td>
+                <td>銀髮人才資源中心職涯再規劃、銀髮衝擊隊培訓、社區據點實習、媒合長照機構</td>
+                <td>轉型樂齡音樂律動講師，將20年專長導入高齡照護，開創職涯第二春。</td>
+                <td class="text-center"><button class="btn-more" data-bs-toggle="modal" data-bs-target="#case4Modal">查看更多</button></td>
+              </tr>
+              <tr>
+                <td class="text-center">案例五</td>
+                <td>在職勞工／中高齡（51歲美容師，因傷轉職）</td>
+                <td>產投方案（中高齡全額補助）</td>
+                <td>考取多張證照，成功跨行為運動按摩講師；在職訓練補助強化轉職能力。</td>
+                <td class="text-center"><button class="btn-more" data-bs-toggle="modal" data-bs-target="#case5Modal">查看更多</button></td>
+              </tr>
+              <tr>
+                <td class="text-center">案例六</td>
+                <td>藝術系畢業生</td>
+                <td>半導體相關專業職訓課程</td>
+                <td>彌補學用落差，取得關鍵技能，轉型半導體工程師並進入高科技產業。</td>
+                <td class="text-center"><button class="btn-more" data-bs-toggle="modal" data-bs-target="#case6Modal">查看更多</button></td>
+              </tr>
+              <tr>
+                <td class="text-center">案例七</td>
+                <td>青年（外送員轉職科技業）</td>
+                <td>YS職涯輔導與訓練、前端工程師培訓</td>
+                <td>系統訓練後成功轉職前端工程師，提升收入與生活品質。</td>
+                <td class="text-center"><button class="btn-more" data-bs-toggle="modal" data-bs-target="#case7Modal">查看更多</button></td>
+              </tr>
+              <tr>
+                <td class="text-center">案例八</td>
+                <td>特定對象（50歲新住民，語言障礙）</td>
+                <td>就業中心個管、自主訓練獎勵、婦女再就業獎勵、台語認證班</td>
+                <td>克服語言障礙重返服務業，總計獲5萬元獎勵，兼顧家庭與收入。</td>
+                <td class="text-center"><button class="btn-more" data-bs-toggle="modal" data-bs-target="#case8Modal">查看更多</button></td>
+              </tr>
+              <tr>
+                <td class="text-center">案例九</td>
+                <td>特定對象（空調技師，職災後復健）</td>
+                <td>職場學習及再適應計畫</td>
+                <td>在真實場域逐步恢復能力與信心，找到新起點；對象擴大至職災與地方政府協助的遊民。</td>
+                <td class="text-center"><button class="btn-more" data-bs-toggle="modal" data-bs-target="#case9Modal">查看更多</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== Modals 彈出視窗區塊 ==================== -->
+
+    <!-- 案例一 Modal：青年畢業生 -->
+    <div class="modal fade" id="case1Modal" tabindex="-1" aria-labelledby="case1ModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="case1ModalLabel">案例一｜青年畢業生靠職涯諮詢與津貼找到教育熱情</h5>
+            <button class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+          </div>
+          <div class="modal-body">
+            <div class="case-body">
+              <div class="case-cover"><img src="Unemployment_11.jpg" alt="案例一圖片：青年尋職"></div>
+              <div class="case-text">
+                <h6>背景與挑戰：</h6>
+                <ul>
+                  <li>成大畢業生初次尋職，對未來焦慮，影響睡眠。</li>
+                  <li>所學在業界需求較低，職涯方向不明。</li>
+                </ul>
+                <h6>政策協助：</h6>
+                <ul>
+                  <li>勞動部「<b>初次尋職青年穩定就業計畫</b>」。</li>
+                  <li>北分署 YS 中心一對一「<b>生涯建構訪談</b>」。</li>
+                </ul>
+                <h6>轉變與成果：</h6>
+                <ul>
+                  <li>梳理興趣與專長，發掘教育熱情，轉職實驗教育科學老師。</li>
+                  <li>獲最高 4.5 萬元「<b>尋職津貼＋就業獎勵金</b>」。</li>
+                </ul>
+                <div class="note-box">透過專業諮詢＋經濟支持，降低焦慮並加速就業決策。</div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer-link">
+            <a href="https://job.taiwanjobs.gov.tw/internet/index/docdetail.aspx?uk=2093&docid=41764" target="_blank" rel="noopener">了解更多</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 案例二 Modal：青年高階銲接技術人才 -->
+    <div class="modal fade" id="case2Modal" tabindex="-1" aria-labelledby="case2ModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="case2ModalLabel">案例二｜青年高階銲接技術人才：從磨練到國手選拔</h5>
+            <button class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+          </div>
+          <div class="modal-body">
+            <div class="case-body">
+              <div class="case-cover"><img src="Unemployment_12.jpg" alt="案例二圖片：青年銲接技術"></div>
+              <div class="case-text">
+                <h6>背景與挑戰：</h6>
+                <ul>
+                  <li>立志深耕高階銲接，但需系統訓練與實戰經驗。</li>
+                  <li>初期屢次失利，需專業指導與耐心磨練。</li>
+                </ul>
+                <h6>政策協助：</h6>
+                <ul>
+                  <li>中彰投分署「<b>客製化培訓計畫</b>」。</li>
+                  <li><b>技能檢定</b>輔導與<b>就業媒合</b>。</li>
+                </ul>
+                <h6>轉變與成果：</h6>
+                <ul>
+                  <li>四年紮實訓練，技術與實務大幅提升。</li>
+                  <li>晉級「第55屆全國技能競賽」二階國手選拔。</li>
+                </ul>
+                <div class="note-box">長期型培訓＋競賽目標，促成技術突破與職涯發展。</div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer-link">
+            <a href="https://job.taiwanjobs.gov.tw/internet/index/docdetail.aspx?uk=2093&docid=41758" target="_blank" rel="noopener">了解更多</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 案例三 Modal：73歲退休者 -->
+    <div class="modal fade" id="case3Modal" tabindex="-1" aria-labelledby="case3ModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="case3ModalLabel">案例三｜73歲退休者重返職場：政府補助創造銀髮友善職位</h5>
+            <button class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+          </div>
+          <div class="modal-body">
+            <div class="case-body">
+              <div class="case-cover"><img src="Unemployment_13.jpg" alt="案例三圖片：高齡者就業"></div>
+              <div class="case-text">
+                <h6>背景與挑戰：</h6>
+                <ul>
+                  <li>73歲仍有強烈工作意願，卻面臨年齡歧視與管道不足。</li>
+                </ul>
+                <h6>政策協助：</h6>
+                <ul>
+                  <li>高屏澎東區銀髮人才資源中心職涯諮詢與媒合。</li>
+                  <li>雇主申請<b>僱用獎助</b>，並採用<b>師徒制</b>協助適應。</li>
+                </ul>
+                <h6>轉變與成果：</h6>
+                <ul>
+                  <li>順利回到職場擔任廠務助理。</li>
+                  <li>補助＋師徒制形塑銀髮友善職場，勞雇雙贏。</li>
+                </ul>
+                <div class="note-box">制度性誘因能有效降低雇主顧慮，擴大銀髮就業機會。</div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer-link">
+            <a href="https://kpptr.wda.gov.tw/News_Content.aspx?n=C7DC8D64F7105F15&sms=36E422E830CABA7D&s=616F01FF0ED4EA41" target="_blank" rel="noopener">了解更多</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 案例四 Modal：二度就業婦女 -->
+    <div class="modal fade" id="case4Modal" tabindex="-1" aria-labelledby="case4ModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="case4ModalLabel">案例四｜二度就業婦女轉型樂齡音樂律動講師</h5>
+            <button class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+          </div>
+          <div class="modal-body">
+            <div class="case-body">
+              <div class="case-cover"><img src="Unemployment_14.jpg" alt="案例四圖片：音樂律動"></div>
+              <div class="case-text">
+                <h6>背景與挑戰：</h6>
+                <ul>
+                  <li>55歲二度就業，離開職場多年，擔心與市場脫節。</li>
+                </ul>
+                <h6>政策協助：</h6>
+                <ul>
+                  <li>銀髮人才資源中心<b>職涯再規劃</b>與<b>銀髮衝擊隊</b>跨域培訓。</li>
+                  <li>社區照顧關懷據點實習，媒合至長照機構授課。</li>
+                </ul>
+                <h6>轉變與成果：</h6>
+                <ul>
+                  <li>把幼兒音樂律動專長導入高齡照護。</li>
+                  <li>成為樂齡音樂律動講師，職涯第二春。</li>
+                </ul>
+                <div class="note-box">跨域轉換＋場域實習，讓經驗有效移轉到新需求。</div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer-link">
+            <a href="https://45plus.wda.gov.tw/News_Content2.aspx?n=40&s=6156" target="_blank" rel="noopener">了解更多</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 案例五 Modal：美容師因傷轉職 -->
+    <div class="modal fade" id="case5Modal" tabindex="-1" aria-labelledby="case5ModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="case5ModalLabel">案例五｜美容師因傷轉職：運用職訓補助成為運動按摩講師</h5>
+            <button class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+          </div>
+          <div class="modal-body">
+            <div class="case-body">
+              <div class="case-cover"><img src="Unemployment_15.jpg" alt="案例五圖片：運動按摩"></div>
+              <div class="case-text">
+                <h6>背景與挑戰：</h6>
+                <ul>
+                  <li>51歲資深美容師因職傷無法原職。</li>
+                </ul>
+                <h6>政策協助：</h6>
+                <ul>
+                  <li>運用<b>產業人才投資方案</b>，中高齡全額補助修課。</li>
+                </ul>
+                <h6>轉變與成果：</h6>
+                <ul>
+                  <li>結合按摩與健身知識，考取多張證照。</li>
+                  <li>成功跨行為運動按摩講師。</li>
+                </ul>
+                <div class="note-box">在職訓練補助，降低轉職成本、提升韌性。</div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer-link">
+            <a href="https://www.taiwanjobs.gov.tw/home/news_info.aspx?id=2557" target="_blank" rel="noopener">了解更多</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 案例六 Modal：藝術系畢業生 -->
+    <div class="modal fade" id="case6Modal" tabindex="-1" aria-labelledby="case6ModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="case6ModalLabel">案例六｜藝術系畢業生透過職訓轉型半導體工程師</h5>
+            <button class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+          </div>
+          <div class="modal-body">
+            <div class="case-body">
+              <div class="case-cover"><img src="Unemployment_16.jpg" alt="案例六圖片：半導體工程"></div>
+              <div class="case-text">
+                <h6>背景與挑戰：</h6>
+                <ul>
+                  <li>非理工背景，面臨學用落差與產業門檻。</li>
+                </ul>
+                <h6>政策協助：根據您的要求，Canvas 已經更新為最新內容，並遵循了先前的註解風格和整理標準。</h6>
+                <ul>
+                  <li>參加<b>半導體專業職訓課程</b>。</li>
+                </ul>
+                <h6>轉變與成果：</h6>
+                <ul>
+                  <li>補齊關鍵技能，順利轉型半導體工程師。</li>
+                </ul>
+                <div class="note-box">職訓精準對接產業需求，助非科系青年跨域。</div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer-link">
+            <a href="https://job.taiwanjobs.gov.tw/internet/Index/DocDetail.aspx?uk=2093&docid=41680" target="_blank" rel="noopener">了解更多</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 案例七 Modal：外送員轉職前端工程師 -->
+    <div class="modal fade" id="case7Modal" tabindex="-1" aria-labelledby="case7ModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="case7ModalLabel">案例七｜外送員成功轉職前端工程師</h5>
+            <button class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+          </div>
+          <div class="modal-body">
+            <div class="case-body">
+              <div class="case-cover"><img src="Unemployment_17.jpg" alt="案例七圖片：外送轉職"></div>
+              <div class="case-text">
+                <h6>背景與挑戰：</h6>
+                <ul>
+                  <li>基層勞動轉科技職缺乏程式技能。</li>
+                </ul>
+                <h6>政策協助：</h6>
+                <ul>
+                  <li>YS中心<b>職涯輔導</b>與<b>前端工程訓練</b>。</li>
+                </ul>
+                <h6>轉變與成果：</h6>
+                <ul>
+                  <li>系統訓練後轉職前端工程師，收入與生活品質提升。</li>
+                </ul>
+                <div class="note-box">明確職涯路徑＋技能養成＝可複製的轉職模式。</div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer-link">
+            <a href="https://www.cna.com.tw/postwrite/chi/399285" target="_blank" rel="noopener">了解更多</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 案例八 Modal：50歲新住民 -->
+    <div class="modal fade" id="case8Modal" tabindex="-1" aria-labelledby="case8ModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="case8ModalLabel">案例八｜50歲新住民雙獎勵重返職場</h5>
+            <button class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+          </div>
+          <div class="modal-body">
+            <div class="case-body">
+              <div class="case-cover"><img src="Unemployment_18.jpg" alt="案例八圖片：新住民就業"></div>
+              <div class="case-text">
+                <h6>背景與挑戰：</h6>
+                <ul>
+                  <li>照護家人離職10年，語言（台語）障礙嚴重。</li>
+                </ul>
+                <h6>政策協助：</h6>
+                <ul>
+                  <li>就業中心個管協助，申請<b>自主訓練獎勵</b>、報名<b>台語認證班</b>。</li>
+                  <li>媒合至水森林農場，申請<b>婦女再就業獎勵</b>。</li>
+                </ul>
+                <h6>轉變與成果：</h6>
+                <ul>
+                  <li>獲 2 萬元自主訓練獎勵，連續就業 90 日再領 3 萬元。</li>
+                  <li>克服語言障礙重返服務業，兼顧家庭與收入。</li>
+                </ul>
+                <div class="note-box">語言培力＋就業獎勵，補強重返職場的關鍵缺口。</div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer-link">
+            <a href="https://job.taiwanjobs.gov.tw/internet/index/docdetail.aspx?uk=2093&docid=41594" target="_blank" rel="noopener">了解更多</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 案例九 Modal：空調技師職災後復健 -->
+    <div class="modal fade" id="case9Modal" tabindex="-1" aria-labelledby="case9ModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="case9ModalLabel">案例九｜空調技師走出職災陰霾，重拾職場信心</h5>
+            <button class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+          </div>
+          <div class="modal-body">
+            <div class="case-body">
+              <div class="case-cover"><img src="Unemployment_19.jpg" alt="案例九圖片：職災再就業"></div>
+              <div class="case-text">
+                <h6>背景與挑戰：</h6>
+                <ul>
+                  <li>職災導致身心創傷，對重返職場存有恐懼。</li>
+                </ul>
+                <h6>政策協助：</h6>
+                <ul>
+                  <li>中彰投分署「<b>職場學習及再適應計畫</b>」。</li>
+                </ul>
+                <h6>轉變與成果：</h6>
+                <ul>
+                  <li>在真實場域逐步恢復能力與信心，找到新起點。</li>
+                  <li>適用對象擴大至職災勞工與地方政府協助的遊民。</li>
+                </ul>
+                <div class="note-box">以做中學的方式重建自信，是重返職場的重要橋梁。</div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer-link">
+            <a href="https://www.taiwanjobs.gov.tw/home/news_info.aspx?id=4321" target="_blank" rel="noopener">了解更多</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 頁尾區塊：聯絡資訊與版權聲明 -->
+  <footer class="footer">
+    📩 寄信給我 林宸緯 <a href="#" onclick="openGmail()">blue8841269@gmail.com</a>
+  </footer>
+
+  <!-- 引入 Bootstrap 5.3.0 JS，用於彈出視窗功能 -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    /**
+     * @description 開啟 Gmail 撰寫新郵件視窗，並預設收件人、主旨及內文。
+     */
+    function openGmail() {
+      const email = "blue8841269@gmail.com";
+      const subject = encodeURIComponent("主旨預設文字");
+      const body = encodeURIComponent("您好，我想了解有關台灣失業率資料的更多細節...");
+      const gmailURL = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${subject}&body=${body}`;
+      window.open(gmailURL, '_blank');
+    }
+  </script>
+</body>
+</html>

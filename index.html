@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>數據之下的現實：重新認識台灣失業率</title>
+
+  <!-- 性能最佳化：字型預連線 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Sans+TC&display=swap" />
+
+  <style>
+     /*
+      * 通用樣式設定
+      * 設定全站字體、背景色、主要色調
+      */
+     body {
+       font-family: 'Noto Sans TC', sans-serif; /* 全站字體使用思源黑體 */
+       background-color: #fdfcd9; /* 背景色為柔和鵝黃色 */
+       margin: 0;
+       padding: 0;
+     }
+ 
+     h2 {
+       color: #21409a; /* 標題文字色為深藍色 */
+       margin-top: 40px;
+     }
+ 
+    /* Canvas 圖表容器 */
+    canvas{max-width:100%;margin-bottom:40px}
+
+    /* ===== 頁首 ===== */
+    .header{
+      background-color: #21409a;
+      color:#fff;
+      text-align:center;
+      padding:24px 12px;
+      font-size:clamp(1.4rem,2.5vw,2rem);
+      font-weight:700;
+    }
+    /*
+     * 導覽列樣式
+     * 使用 Flexbox 實現水平置中與內容換行
+     */
+    nav {
+      background-color: #21409a;
+      display: flex;
+      flex-wrap: wrap; /* 內容過長時自動換行 */
+      justify-content: center;
+    }
+
+    nav a {
+      line-height: 2em;
+      padding: 30px 50px;
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      white-space: nowrap; /* 防止按鈕文字換行 */
+      font-size: clamp(0.9em, 2.5vw, 1.3em); /* 彈性字體大小，在不同螢幕尺寸下自動縮放 */
+    }
+
+    nav a:hover {
+      background-color: #880e4f; /* 滑鼠移入時背景變為酒紅色 */
+    }
+
+    .w3-bar .active {
+      background-color: #800080 !important; /* 標示當前頁面為紫色 */
+      color: white !important;
+    }
+
+    /*
+     * 頁尾樣式
+     * 固定在底部，確保在內容較短時頁尾也能顯示在正確位置
+     */
+    .footer {
+      background-color: #21409a; /* 頁尾背景為深藍色 */
+      color: white; /* 文字顏色為白色 */
+      text-align: center; /* 文字置中 */
+      padding: 16px; /* 內邊距 */
+      font-size: 0.95em; /* 字體大小 */
+      position: fixed;   /* 固定位置 */
+      bottom: 0;         /* 貼齊底部 */
+      left: 0;
+      width: 100%; /* 寬度佔滿 */
+      z-index: 10; /* 確保頁尾在其他內容之上 */
+      line-height:5px;      
+    }
+    .footer a {
+      color: white; /* 連結文字顏色為白色 */
+      text-decoration: underline; /* 連結帶底線 */
+    }
+    /* ===== 主要內容容器 ===== */
+    main{max-width:1200px;margin:40px auto;padding:0 20px}
+
+    /* ===== Hero 圖與引言 ===== */
+    .top-image-container{position:relative;margin-top:0}
+    .top-image{
+      width:100%; max-width:1000px; margin:0 auto; display:block;
+      object-fit:cover; object-position:center;
+      aspect-ratio: 16 / 9; /* 避免 CLS */
+      border-radius:8px;
+    }
+    .quote{
+      position:absolute; inset:auto 0 24px 0;
+      margin-inline:auto; width:min(92%,800px);
+      color:#fff; text-align:center;
+      font-size:clamp(1rem,2.5vw,1.5rem);
+      text-shadow:0 2px 8px rgba(0,0,0,.6);
+      font-weight:700;
+    }
+
+    /* ===== 文字段落 ===== */
+    .section{display:flex; flex-wrap:wrap; justify-content:center; padding:40px 12px; gap:24px}
+    .section-text{flex:1 1 720px; max-width:1000px; margin:0 auto}
+    .section-text h2{font-weight:700; font-size:clamp(1.3rem,2.6vw,1.8rem); margin:0 0 12px}
+    .section-text p{font-size:clamp(1rem,2vw,1.2rem); line-height:1.8}
+
+    /* ===== 即時資訊區 ===== */
+    .data-section{
+      display:flex; flex-wrap:wrap; align-items:center; justify-content:center;
+      gap:32px; padding:32px 16px;
+    }
+    .data-title{font-size:clamp(1.1rem,2.2vw,1.5rem); font-weight:700; margin-bottom:6px}
+    .data-list{font-size:clamp(.98rem,2vw,1.05rem); line-height:1.8}
+    .icon-image{
+      width:clamp(160px,26vw,360px);
+      height:auto; border-radius:10px; flex:0 0 auto;
+    }
+
+
+    /* ===== 響應式 ===== */
+    @media (max-width: 768px){
+      .quote{inset:auto 0 10px 0}
+      .data-section{flex-direction:column}
+    }
+    /* 極小螢幕：footer 改為非 fixed，避免遮擋 */
+    @media (max-width: 360px){
+      body{padding-bottom:0}
+      .footer{position:static; height:auto}
+    }
+  </style>
+</head>
+
+<body>
+  <header class="header">數據之下的現實：重新認識台灣失業率</header>
+
+  <nav class="w3-bar w3-indigo" aria-label="主導覽">
+    <a href="index.html" class="w3-bar-item w3-button w3-hover-white active">首頁</a>
+    <a href="trend.html" class="w3-bar-item w3-button w3-hover-white">趨勢分析</a>
+    <a href="policy.html" class="w3-bar-item w3-button w3-hover-white">國家政策</a>
+    <a href="case.html" class="w3-bar-item w3-button w3-hover-white">實際案例</a>
+    <a href="chatbot.html" class="w3-bar-item w3-button w3-hover-white">智能諮詢室</a>
+  </nav>
+
+  <main>
+    <section class="top-image-container" aria-label="主視覺">
+      <img src="Unemployment_1.jpg" alt="站在人群中的求職者，象徵等待機會" class="top-image" loading="lazy" />
+      <div class="quote">他不是懶惰，而是還在等待機會的人</div>
+    </section>
+
+    <section class="section">
+      <div class="section-text">
+        <h2>台灣的失業率聽起來不高</h2>
+        <p>
+          背後藏著多少沒人看見的努力與焦慮？我們用圖表、數據與故事，<br />
+          帶你重新理解什麼叫做「沒工作的人」，也希望讓更多人知道，<br />
+          數字背後，是一個個正在努力生存的人。
+        </p>
+      </div>
+    </section>
+
+    <section class="data-section" aria-labelledby="latest-tw-unemp">
+      <img src="Unemployment_4.jpg" alt="資訊插畫：找工作的人" class="icon-image" loading="lazy" />
+      <div>
+        <div id="latest-tw-unemp" class="data-title">台灣失業人口資訊［2025 年 06 月］</div>
+        <div class="data-list" aria-live="polite">
+          <p>🙇‍♂️ 失業率：<span id="unemployment">--%</span></p>
+          <p>🕐 失業率（經季節調整後）：<span id="seasonal_adjusted">--%</span></p>
+          <p>🧾 失業人數：<span id="unemployed_thousands">--</span></p>
+          <p>💼 就業人數：<span id="employed_thousands">--</span></p>
+          <p>📈 勞動力參與率：<span id="participation_rate">--%</span></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    📩 寄信給我 林宸緯 <a href="#" onclick="openGmail()">blue8841269@gmail.com</a>
+  </footer>
+
+  <script>
+    // Gmail 快捷撰寫
+    function openGmail() {
+      const email = 'blue8841269@gmail.com';
+      const subject = encodeURIComponent('主旨預設文字');
+      const body = encodeURIComponent('您好，我想了解有關台灣失業率資料的更多細節...');
+      const gmailURL = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${subject}&body=${body}`;
+      window.open(gmailURL, '_blank');
+    }
+
+    // 工具：千分位與百分比格式化
+    const nf = new Intl.NumberFormat('zh-Hant-TW');
+    const pf = new Intl.NumberFormat('zh-Hant-TW', { maximumFractionDigits: 2 });
+
+    // 載入 data.json（加時間戳避免快取）
+    fetch("data.json?ts=" + Date.now())
+      .then(res => {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .then(data => {
+        // 容錯：若欄位不存在則保留預設
+        const $ = id => document.getElementById(id);
+        if (data.unemployment_rate != null) $('unemployment').textContent = pf.format(data.unemployment_rate) + '%';
+        if (data.seasonal_adjusted != null) $('seasonal_adjusted').textContent = pf.format(data.seasonal_adjusted) + '%';
+        if (data.unemployed_thousands != null) $('unemployed_thousands').textContent = nf.format(data.unemployed_thousands) + ' 千人';
+        if (data.employed_thousands != null) $('employed_thousands').textContent = nf.format(data.employed_thousands) + ' 千人';
+        if (data.participation_rate != null) $('participation_rate').textContent = pf.format(data.participation_rate) + '%';
+      })
+      .catch(() => {
+        document.querySelectorAll('.data-list span').forEach(e => (e.textContent = '資料錯誤'));
+      });
+  </script>
+</body>
+</html>
