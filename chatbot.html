@@ -1,469 +1,229 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <!-- viewport meta 標籤是響應式設計的基礎，它告訴瀏覽器頁面應如何縮放以適應設備寬度 -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>智能諮詢室｜數據之下的現實：重新認識台灣失業率</title>
-  <!-- 引入 W3.CSS 樣式庫，用於導覽列和通用排版 -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>智能諮詢室（前端 Only）</title>
   <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-  <!-- 引入 Google Fonts 的思源黑體，作為主要字體 -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Sans+TC">
-  <!-- 引入 Tailwind CSS CDN，用於快速造型 -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Markdown 轉換 + 安全淨化 -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
-
   <style>
-    /* 通用樣式設定 */
-    body {
-      font-family: 'Noto Sans TC', sans-serif;
-      background-color: #fdfcd9;
-      margin: 0;
-      padding: 0;
-    }
-    h2 {
-      color: #21409a;
-      margin-top: 40px;
-    }
-    canvas { max-width: 100%; margin-bottom: 40px; }
-
-    /* 頁首 */
-    .header {
-      background-color: #21409a;
-      color: white;
-      text-align: center;
-      padding: 30px 0;
-      font-size: 2em;
-      font-weight: bold;
-    }
-
-    /* 導覽列（維持原配色與結構） */
-    nav {
-      background-color: #21409a;
-      display: flex; flex-wrap: wrap; justify-content: center;
-    }
-    nav a {
-      display: inline-block;
-      line-height: 2em;
-      padding: 30px 50px;
-      color: white; text-decoration: none; font-weight: bold;
-      white-space: nowrap;
-      font-size: clamp(0.9em, 2.5vw, 1.3em);
-    }
-    nav a:hover { background-color: #880e4f; }
-    .w3-bar .active { background-color: #800080 !important; color: white !important; }
-
-    /* 頁尾固定在底部 */
-    .footer {
-      background-color: #21409a;
-      color: white;
-      text-align: center;
-      padding: 16px;
-      font-size: 0.95em;
-      position: fixed; bottom: 0; left: 0; width: 100%;
-      z-index: 10; line-height: 1.4;
-    }
-    .footer a { color: white; text-decoration: underline; }
-
-    /* 主內容避免被 footer 蓋住 */
-    main {
-      max-width: 1200px;
-      margin: 40px auto;
-      padding: 0 20px 100px 20px; /* 底部留白 */
-    }
-
-    /* 內嵌聊天容器 */
-    .inline-chat-container {
-      margin: 40px auto; width: 100%; max-width: 800px; min-height: 800px; /* 調整聊天容器的最小高度 */
-      display: flex; flex-direction: column;
-      background-color: white; border-radius: 1rem;
-      box-shadow: 0 10px 15px rgba(0,0,0,0.1);
-    }
-
-    /* 自訂滾動條（整站適用） */
-    ::-webkit-scrollbar { width: 8px; }
-    ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-    ::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; }
-    ::-webkit-scrollbar-thumb:hover { background: #555; }
-
-    /* 聊天訊息區塊 */
-    .chat-messages {
-      overflow-y: auto;
-      padding: 1.5rem;
-      background-color: #f8fafc;
-      flex-grow: 1; /* 讓對話框填滿可用空間 */
-    }
-
-    /* 響應式調整 */
-    @media (max-width: 480px) {
-      .inline-chat-container { width: 90%; }
-      main { padding: 20px 10px 100px 10px; }
-    }
-    @media screen and (max-width: 768px) {
-      nav { flex-direction: column; }
-      nav a { padding: 15px 20px; }
-    }
+    body{font-family:'Noto Sans TC',sans-serif;background:#fdfcd9;margin:0}
+    .header{background:#21409a;color:#fff;text-align:center;padding:24px 0;font-weight:700}
+    nav{background:#21409a;display:flex;justify-content:center;flex-wrap:wrap}
+    nav a{color:#fff;padding:16px 24px;text-decoration:none;font-weight:700}
+    nav a:hover{background:#880e4f}
+    .footer{position:fixed;left:0;bottom:0;width:100%;background:#21409a;color:#fff;text-align:center;padding:10px 8px}
+    main{max-width:960px;margin:24px auto;padding:0 16px 96px}
+    .box{background:#fff;border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,.08);overflow:hidden}
+    .chat{min-height:60vh;max-height:70vh;overflow:auto;background:#f8fafc}
+    .chips button{border-radius:9999px}
   </style>
 </head>
-
-<body class="gemini-chat-body">
+<body>
   <header class="header">數據之下的現實：重新認識台灣失業率</header>
-
-  <!-- 導覽列 -->
   <nav class="w3-bar w3-indigo">
-    <div class="nav-wrapper" style="display: flex; justify-content: center; gap: 0px;">
-      <a href="index.html"    class="w3-bar-item w3-button w3-hover-white">首頁</a>
-      <a href="trend.html"    class="w3-bar-item w3-button w3-hover-white">趨勢分析</a>
-      <a href="policy.html"   class="w3-bar-item w3-button w3-hover-white">國家政策</a>
-      <a href="case.html"     class="w3-bar-item w3-button w3-hover-white">實際案例</a>
-      <a href="chatbot.html" class="w3-bar-item w3-button w3-hover-white active">智能諮詢室</a>
-      <a href="source.html"   class="w3-bar-item w3-button w3-hover-white">資料來源</a>
-    </div>
+    <a class="w3-bar-item w3-button w3-hover-white" href="index.html">首頁</a>
+    <a class="w3-bar-item w3-button w3-hover-white" href="trend.html">趨勢分析</a>
+    <a class="w3-bar-item w3-button w3-hover-white" href="policy.html">國家政策</a>
+    <a class="w3-bar-item w3-button w3-hover-white" href="case.html">實際案例</a>
+    <a class="w3-bar-item w3-button w3-hover-white active" href="chatbot_frontend_only.html">智能諮詢室</a>
   </nav>
 
   <main>
-    <!-- 聊天容器 -->
-    <div id="inline-chat-container" class="inline-chat-container">
-      <!-- 標題 -->
-      <div class="p-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-center text-2xl font-bold rounded-t-xl shadow-md">
-        問問中心
+    <div class="box">
+      <div class="p-4 text-white text-center text-xl font-bold bg-gradient-to-r from-blue-500 to-purple-600">問問中心（前端 Demo）</div>
+
+      <!-- Chips -->
+      <div id="chips" class="chips flex flex-wrap gap-2 px-4 py-3 bg-white border-b">
+        <button class="px-3 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100" data-q="最近三個月失業率趨勢？">最近三個月失業率趨勢？</button>
+        <button class="px-3 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100" data-q="青年失業的主要原因？">青年失業的主要原因？</button>
+        <button class="px-3 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100" data-q="我適合參加哪些職訓？">我適合參加哪些職訓？</button>
+        <button class="px-3 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100" data-q="幫我列出可申請的補助">幫我列出可申請的補助</button>
       </div>
 
-      <!-- 常用提問 Chips -->
-      <div id="chips" class="flex flex-wrap gap-2 px-4 py-3 border-b border-gray-200 bg-white">
-        <button class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-sm hover:bg-blue-100" data-q="最近三個月失業率趨勢？">最近三個月失業率趨勢？</button>
-        <button class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-sm hover:bg-blue-100" data-q="青年失業的主要原因？">青年失業的主要原因？</button>
-        <button class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-sm hover:bg-blue-100" data-q="我適合參加哪些職訓？">我適合參加哪些職訓？</button>
-        <button class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-sm hover:bg-blue-100" data-q="幫我列出可申請的補助">幫我列出可申請的補助</button>
-      </div>
-
-      <!-- 訊息顯示 -->
-      <div id="chat-messages" class="chat-messages">
-        <!-- 初始問候語現在完全由 JavaScript 動態新增，避免重複 -->
-      </div>
-
-      <!-- 載入指示器 -->
-      <div id="loading-indicator" class="hidden flex justify-center items-center py-2">
+      <!-- Chat -->
+      <div id="chat" class="chat p-4 space-y-4"></div>
+      <div id="loading" class="hidden flex justify-center items-center py-2">
         <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
         <span class="ml-2 text-gray-600">正在思考...</span>
       </div>
 
-      <!-- 工具列：匯出 / 清除 / 停止 -->
-      <div class="flex items-center justify-between px-4 py-2 bg-white border-t border-gray-200">
+      <!-- Toolbar -->
+      <div class="flex items-center justify-between px-4 py-2 bg-white border-t">
         <div class="flex gap-2">
           <button id="export-txt"  class="px-3 py-1 text-sm bg-gray-100 rounded hover:bg-gray-200">匯出 .txt</button>
           <button id="export-json" class="px-3 py-1 text-sm bg-gray-100 rounded hover:bg-gray-200">匯出 .json</button>
-          <button id="clear-chat"  class="px-3 py-1 text-sm bg-gray-100 rounded hover:bg-gray-200">清除聊天</button>
+          <button id="clear"       class="px-3 py-1 text-sm bg-gray-100 rounded hover:bg-gray-200">清除聊天</button>
         </div>
-        <button id="abort-btn" class="px-3 py-1 text-sm bg-rose-600 text-white rounded hover:bg-rose-700 hidden">停止生成</button>
+        <button id="abort" class="px-3 py-1 text-sm bg-rose-600 text-white rounded hover:bg-rose-700 hidden">停止生成</button>
       </div>
 
-      <!-- 輸入列（含字數計數器） -->
-      <div class="p-4 border-t border-gray-200 flex items-start gap-2 bg-white rounded-b-xl">
-        <textarea
-          id="user-input"
-          class="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none h-12 overflow-hidden transition-all duration-200"
-          placeholder="輸入你的訊息..."
-          rows="1"
-        ></textarea>
+      <!-- Input -->
+      <div class="p-4 bg-white border-t flex items-start gap-2">
+        <textarea id="input" rows="1" class="flex-1 p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none h-12 overflow-hidden" placeholder="輸入你的訊息..."></textarea>
         <div class="flex flex-col items-end gap-2">
-          <div id="char-counter" class="text-xs text-gray-500">0 / 500</div>
-          <button
-            id="send-button"
-            class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition-colors duration-200 disabled:opacity-50"
-            disabled
-          >傳送</button>
+          <div id="counter" class="text-xs text-gray-500">0 / 500</div>
+          <button id="send" class="px-6 py-3 bg-blue-600 text-white rounded shadow disabled:opacity-50" disabled>傳送</button>
         </div>
       </div>
     </div>
   </main>
 
-  <!-- 頁尾 -->
   <footer class="footer">
-    📩 寄信給我 林宸緯
-    <a href="#" onclick="openGmail()">blue8841269@gmail.com</a>
+    📩 寄信給我 林宸緯 <a href="mailto:blue8841269@gmail.com" class="underline">blue8841269@gmail.com</a>
   </footer>
 
   <script>
-    /** 開啟 Gmail 撰寫新郵件視窗 */
-    function openGmail() {
-      const email = "blue8841269@gmail.com";
-      const subject = encodeURIComponent("主旨預設文字");
-      const body = encodeURIComponent("您好，我想了解有關台灣失業率資料的更多細節...");
-      const gmailURL = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${subject}&body=${body}`;
-      window.open(gmailURL, '_blank');
-    }
-  </script>
+    // ====== 設定（前端 Demo：把 key 寫這）=====
+    const API_KEY    = 'AIzaSyBoFmlsnaABMBbn-r3w_49SzZlksRrHazA';            // ⛔ 只有示範用！
+    const MODEL      = 'gemini-2.5-flash-preview-05-20';
+    const API_URL    = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
+    const STORAGE_KEY= 'chatHistoryV1';
+    const MAX_CHARS  = 500;
 
-  <!-- 核心聊天腳本（含：Chips/localStorage/Markdown/Abort/匯出/字數上限） -->
-  <script type="module">
-    // ===== DOM 元素參考 =====
-    const chatMessages    = document.getElementById('chat-messages');
-    const userInput       = document.getElementById('user-input');
-    const sendButton      = document.getElementById('send-button');
-    const loadingIndicator = document.getElementById('loading-indicator');
-    const chipsBar        = document.getElementById('chips');
-    const exportTxtBtn    = document.getElementById('export-txt');
-    const exportJsonBtn   = document.getElementById('export-json');
-    const clearBtn        = document.getElementById('clear-chat');
-    const abortBtn        = document.getElementById('abort-btn');
-    const charCounter     = document.getElementById('char-counter');
+    // ====== DOM ======
+    const chatEl     = document.getElementById('chat');
+    const inputEl    = document.getElementById('input');
+    const sendBtn    = document.getElementById('send');
+    const counterEl  = document.getElementById('counter');
+    const loadingEl  = document.getElementById('loading');
+    const abortBtn   = document.getElementById('abort');
+    const chipsEl    = document.getElementById('chips');
+    const exportTxt  = document.getElementById('export-txt');
+    const exportJson = document.getElementById('export-json');
+    const clearBtn   = document.getElementById('clear');
 
-    // ===== 設定 =====
-    const MAX_CHARS = 500;              // 字數上限
-    const STORAGE_KEY = 'chatHistoryV1'; // localStorage Key
-    const MODEL_NAME = 'gemini-2.5-flash-preview-05-20'; // 使用的 Gemini 模型名稱
-    const MAX_RETRIES = 5; // API 呼叫的最大重試次數
+    let controller = null;
+    let history = load() || [];
+    marked.setOptions({ breaks:true, gfm:true });
+    const md = (t)=> DOMPurify.sanitize(marked.parse(t||''));
 
-    // ===== 狀態管理 =====
-    let chatHistory = loadHistory();
-    let controller = null;    // 用於中止 API 請求的 AbortController
+    // 初始訊息 / 歷史
+    if (history.length === 0) addMsg('bot','嗨！有什麼我可以幫助你的嗎？');
+    else history.forEach(m=>addMsg(m.role==='user'?'user':'bot', m.parts?.[0]?.text||''));
 
-    // ===== Markdown 設定（安全渲染）======
-    marked.setOptions({ breaks: true, gfm: true });
-    // 使用 DOMPurify 清理 Markdown 內容以防止 XSS 攻擊
-    const renderMarkdown = (md) => DOMPurify.sanitize(marked.parse(md ?? ''));
-
-    // ===== 初始化：載入歷史訊息到畫面 =====
-    // 只有在聊天歷史為空時才新增初始問候語
-    if (chatHistory.length === 0) {
-      addMessage('gemini', '嗨！有什麼我可以幫助你的嗎？');
-    } else {
-      chatHistory.forEach(m => addMessage(m.role === 'user' ? 'user' : 'gemini', m.parts?.[0]?.text || ''));
-    }
-
-    // ===== Chips 快速提問事件監聽 =====
-    if (chipsBar) {
-      chipsBar.addEventListener('click', (e) => {
-        const btn = e.target.closest('button[data-q]');
-        if (!btn) return;
-        userInput.value = btn.dataset.q || '';
-        updateCounter();
-        userInput.focus();
-      });
-    }
-
-    // ===== 傳送訊息事件監聽 =====
-    sendButton.addEventListener('click', sendMessage);
-    userInput.addEventListener('keydown', (e) => {
-      // 按下 Enter 鍵且未按住 Shift 鍵時傳送訊息
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault(); // 阻止換行
-        sendMessage();
-      }
+    // Chips
+    chipsEl.addEventListener('click', e=>{
+      const b = e.target.closest('button[data-q]');
+      if (!b) return;
+      inputEl.value = b.dataset.q;
+      updateCounter();
+      inputEl.focus();
     });
 
-    // ===== 輸入框自動伸縮與字數計數器更新 =====
-    userInput.addEventListener('input', () => {
-      userInput.style.height = 'auto'; // 先將高度設為 auto，以便正確計算 scrollHeight
-      userInput.style.height = userInput.scrollHeight + 'px'; // 設置為滾動高度
-      updateCounter(); // 更新字數計數器
+    // 輸入/送出
+    inputEl.addEventListener('input', ()=>{
+      inputEl.style.height='auto';
+      inputEl.style.height = inputEl.scrollHeight+'px';
+      updateCounter();
     });
-    updateCounter(); // 初始化時更新計數器
-
-    // ===== 工具列按鈕事件監聽（匯出/清除/停止）=====
-    exportTxtBtn?.addEventListener('click', () => exportChat('txt'));
-    exportJsonBtn?.addEventListener('click', () => exportChat('json'));
-    clearBtn?.addEventListener('click', clearChat);
-    abortBtn?.addEventListener('click', abortGeneration);
-
-    // ===== 送出訊息的核心邏輯 =====
-    async function sendMessage() {
-      const prompt = userInput.value.trim();
-      if (!prompt || prompt.length > MAX_CHARS) return; // 檢查輸入是否有效
-
-      // 將使用者訊息加入聊天歷史並顯示在介面
-      appendHistory({ role: 'user', parts: [{ text: prompt }] });
-      addMessage('user', prompt);
-
-      userInput.value = ''; // 清空輸入框
-      updateCounter(); // 更新字數計數器
-      setLoading(true); // 顯示載入指示器
-
-      controller = new AbortController(); // 初始化 AbortController
-
-      const apiKey = ""; // API 金鑰，由 Canvas 環境自動提供
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`;
-
-      let attempt = 0;
-      let success = false;
-      let resultText = '（無回應內容）';
-
-      // 實現指數退避重試機制
-      while (attempt < MAX_RETRIES && !success) {
-          try {
-              const res = await fetch(apiUrl, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ contents: chatHistory }), // 請求主體只包含聊天歷史
-                  signal: controller.signal // 將 AbortController 的信號傳遞給 fetch
-              });
-
-              if (!res.ok) {
-                  if (res.status === 429) { // HTTP 429: Too Many Requests
-                      const delay = Math.pow(2, attempt) * 1000 + Math.random() * 1000; // 指數退避 + 隨機抖動
-                      await new Promise(resolve => setTimeout(resolve, delay));
-                      attempt++;
-                      continue; // 進行下一次重試
-                  }
-                  throw new Error(`API ${res.status} ${res.statusText}`); // 其他錯誤直接拋出
-              }
-
-              const result = await res.json(); // 解析 JSON 回應
-              // 從 Gemini API 回應中提取文本內容
-              if (result.candidates && result.candidates.length > 0 &&
-                  result.candidates[0].content && result.candidates[0].content.parts &&
-                  result.candidates[0].content.parts.length > 0) {
-                  resultText = result.candidates[0].content.parts[0].text;
-                  success = true; // 成功獲取內容，跳出重試迴圈
-              } else {
-                  resultText = '（API 回應格式不符預期或無內容）';
-                  success = true; // 即使無內容也視為成功處理
-              }
-          } catch (err) {
-              if (err.name === 'AbortError') {
-                  resultText = '⚠️ 已停止生成。';
-                  success = true; // 請求被中止，跳出重試迴圈
-                  break;
-              } else {
-                  console.error("API 呼叫錯誤:", err);
-                  if (attempt < MAX_RETRIES - 1) {
-                      const delay = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
-                      await new Promise(resolve => setTimeout(resolve, delay));
-                      attempt++;
-                  } else {
-                      resultText = '抱歉，連線發生錯誤，請稍後再試。'; // 達到最大重試次數
-                      success = true;
-                  }
-              }
-          }
+    inputEl.addEventListener('keydown', e=>{
+      if (e.key==='Enter' && !e.shiftKey){
+        e.preventDefault();
+        send();
       }
-      // 將 Gemini 模型的回應顯示在介面
-      addMessage('gemini', resultText, { markdown: true });
+    });
+    sendBtn.addEventListener('click', send);
 
-      setLoading(false); // 隱藏載入指示器
-      controller = null; // 重置 AbortController
+    // 匯出/清除/停止
+    exportTxt.onclick  = ()=>exportChat('txt');
+    exportJson.onclick = ()=>exportChat('json');
+    clearBtn.onclick   = clearChat;
+    abortBtn.onclick   = ()=>controller?.abort();
+
+    function updateCounter(){
+      const len = (inputEl.value||'').length;
+      counterEl.textContent = `${len} / ${MAX_CHARS}`;
+      counterEl.className   = `text-xs ${len>MAX_CHARS?'text-rose-600':'text-gray-500'}`;
+      sendBtn.disabled = !(len>0 && len<=MAX_CHARS);
     }
 
-    // ===== UI 輔助函式 =====
-    /**
-     * 將訊息加入聊天顯示區
-     * @param {string} sender - 傳送者 ('user' 或 'gemini')
-     * @param {string} text - 訊息文本
-     * @param {object} opts - 選項，例如 { markdown: true } 是否渲染為 Markdown
-     */
-    function addMessage(sender, text, opts = { markdown: false }) {
-      const wrapper = document.createElement('div');
-      wrapper.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start'}`;
-
+    function addMsg(who, text, opts={markdown:true}){
+      const row = document.createElement('div');
+      row.className = `flex ${who==='user'?'justify-end':'justify-start'}`;
       const bubble = document.createElement('div');
-      bubble.className = `p-3 rounded-lg shadow-sm max-w-[80%] ${
-        sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'
-      }`;
-
-      if (opts.markdown) {
-        bubble.innerHTML = renderMarkdown(text);
-        // 對 Markdown 渲染後的 <pre> 標籤進行樣式調整
-        bubble.querySelectorAll('pre').forEach(pre => {
-          pre.style.overflow = 'auto';
-          pre.style.padding = '8px';
-          pre.style.borderRadius = '6px';
-          pre.style.background = 'rgba(0,0,0,0.05)';
-        });
-      } else {
-        bubble.textContent = text;
-      }
-
-      wrapper.appendChild(bubble);
-      chatMessages.appendChild(wrapper);
-      // 自動滾動到最新訊息
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-      window.scrollTo(0, document.body.scrollHeight);
+      bubble.className = `max-w-[80%] p-3 rounded-lg shadow-sm ${who==='user'?'bg-blue-600 text-white':'bg-gray-200 text-gray-800'}`;
+      bubble.innerHTML = opts.markdown ? md(text) : text;
+      row.appendChild(bubble);
+      chatEl.appendChild(row);
+      chatEl.scrollTop = chatEl.scrollHeight;
+      window.scrollTo(0,document.body.scrollHeight);
     }
 
-    /**
-     * 顯示或隱藏載入指示器，並控制按鈕啟用狀態
-     * @param {boolean} loading - 是否顯示載入中狀態
-     */
-    function setLoading(loading) {
-      loading ? loadingIndicator.classList.remove('hidden') : loadingIndicator.classList.add('hidden');
-      sendButton.disabled = loading;
-      userInput.disabled  = loading;
-      abortBtn.classList.toggle('hidden', !loading); // 載入時顯示停止按鈕
+    function setLoading(on){
+      loadingEl.classList.toggle('hidden', !on);
+      sendBtn.disabled = on;
+      inputEl.disabled = on;
+      abortBtn.classList.toggle('hidden', !on);
     }
 
-    /** 更新輸入框的字數計數和傳送按鈕狀態 */
-    function updateCounter() {
-      const len = (userInput.value || '').length;
-      const ok = len > 0 && len <= MAX_CHARS;
-      charCounter.textContent = `${len} / ${MAX_CHARS}`;
-      // 超過字數上限時顯示紅色警告
-      charCounter.className = `text-xs ${len > MAX_CHARS ? 'text-rose-600' : 'text-gray-500'}`;
-      sendButton.disabled = !ok; // 無效輸入時禁用傳送按鈕
+    function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(history)); }
+    function load(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); }catch{ return []; } }
+    function append(m){ history.push(m); save(); }
+
+    function clearChat(){
+      if (!confirm('確定清除聊天？')) return;
+      history = []; save(); chatEl.innerHTML='';
+      addMsg('bot','嗨！有什麼我可以幫助你的嗎？');
     }
 
-    // ===== localStorage 相關函式 =====
-    /** 從 localStorage 載入聊天歷史 */
-    function loadHistory() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? JSON.parse(raw) : [];
-      } catch { return []; } // 載入失敗時返回空陣列
-    }
-
-    /** 將當前聊天歷史儲存到 localStorage */
-    function saveHistory() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(chatHistory));
-    }
-
-    /** 將新訊息加入聊天歷史並儲存 */
-    function appendHistory(msg) {
-      chatHistory.push(msg);
-      saveHistory();
-    }
-
-    /** 清除聊天歷史 */
-    function clearChat() {
-      // 顯示確認對話框，避免誤觸
-      if (!confirm('確定要清除這次聊天嗎？此動作無法復原。')) return;
-      chatHistory = []; // 清空歷史
-      saveHistory(); // 更新 localStorage
-      chatMessages.innerHTML = ''; // 清空顯示區
-      addMessage('gemini', '嗨！有什麼我可以幫助你的嗎？'); // 顯示初始問候語
-    }
-
-    // ===== 匯出聊天記錄 =====
-    /**
-     * 匯出聊天記錄為 .txt 或 .json 檔案
-     * @param {string} type - 匯出檔案類型 ('txt' 或 'json')
-     */
-    function exportChat(type) {
-      const fileName = `chat_${new Date().toISOString().replace(/[:.]/g,'-')}.${type}`;
+    function exportChat(type){
+      const name = `chat_${new Date().toISOString().replace(/[:.]/g,'-')}.${type}`;
       let blob;
-      if (type === 'json') {
-        blob = new Blob([JSON.stringify(chatHistory, null, 2)], { type: 'application/json' });
-      } else {
-        // 將聊天歷史轉換為純文字格式
-        const plain = chatHistory.map(m => {
-          const who = m.role === 'user' ? '使用者' : '助理';
-          return `【${who}】\n${m.parts?.[0]?.text || ''}\n`;
+      if (type==='json') blob = new Blob([JSON.stringify(history,null,2)],{type:'application/json'});
+      else {
+        const txt = history.map(m=>{
+          const who = m.role==='user'?'使用者':'助理';
+          return `【${who}】\n${m.parts?.[0]?.text||''}\n`;
         }).join('\n---\n');
-        blob = new Blob([plain], { type: 'text/plain;charset=utf-8' });
+        blob = new Blob([txt],{type:'text/plain;charset=utf-8'});
       }
-      // 創建一個隱藏的下載連結並觸發點擊
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = fileName;
-      a.click();
-      URL.revokeObjectURL(a.href); // 釋放 URL 物件
+      const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click();
+      URL.revokeObjectURL(a.href);
     }
 
-    // ===== 停止生成訊息 =====
-    function abortGeneration() {
-      if (controller) controller.abort(); // 觸發 AbortController 的 abort() 方法
+    async function send(){
+      const prompt = inputEl.value.trim();
+      if (!prompt || prompt.length>MAX_CHARS) return;
+
+      // 顯示 & 存本地
+      addMsg('user', prompt, {markdown:false});
+      append({role:'user', parts:[{text:prompt}]});
+      inputEl.value=''; updateCounter();
+
+      // 呼叫 API
+      setLoading(true);
+      controller = new AbortController();
+      try{
+        const res = await fetch(API_URL,{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ contents: history }),
+          signal: controller.signal
+        });
+        if (!res.ok){
+          let msg = `API ${res.status}`;
+          if (res.status===403) msg = '403 Forbidden（Key 無效或被限制）。';
+          throw new Error(msg);
+        }
+        const data = await res.json();
+        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '（無回應內容）';
+        addMsg('bot', text);
+        append({role:'model', parts:[{text}]});
+      }catch(err){
+        console.error(err);
+        addMsg('bot', '抱歉，連線發生錯誤，請稍後再試。');
+      }finally{
+        setLoading(false);
+        controller = null;
+      }
     }
+
+    // 初始化
+    updateCounter();
   </script>
 </body>
 </html>
