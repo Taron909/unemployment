@@ -182,38 +182,12 @@
   </footer>
 
   <script>
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-   const API_URL = '/api/generate';    
-    const ALLOWED_ORIGINS = [
-  'https://你的站名.netlify.app',
-  'http://localhost:8888'
-];
+    // 只打你的 Netlify Function，不再暴露金鑰
+    const API_URL     = '/api/generate';
+    const STORAGE_KEY = 'chatHistoryV1';
+    const MAX_CHARS   = 500;
 
-const headers = (origin) => ({
-  'Access-Control-Allow-Origin': origin,
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Content-Type': 'application/json; charset=utf-8'
-});
-
-export async function handler(event) {
-  const origin = ALLOWED_ORIGINS.includes(event.headers.origin) ? event.headers.origin : ALLOWED_ORIGINS[0];
-  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: headers(origin) };
-  if (event.httpMethod !== 'POST')   return { statusCode: 405, headers: headers(origin), body: '{"error":"Method Not Allowed"}' };
-
-  const API_KEY = process.env.GOOGLE_API_KEY;           // ← 就用你剛設的變數
-  const MODEL   = 'gemini-2.5-flash-preview-05-20';
-
-  const body = JSON.parse(event.body || '{}');
-  const url  = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
-
-  const resp = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
-  const text = await resp.text();
-  return { statusCode: resp.status, headers: headers(origin), body: text };
-}
-
-
-    // ====== DOM ======
+    // ===== DOM =====
     const chatEl     = document.getElementById('chat');
     const inputEl    = document.getElementById('input');
     const sendBtn    = document.getElementById('send');
@@ -316,12 +290,10 @@ export async function handler(event) {
       const prompt = inputEl.value.trim();
       if (!prompt || prompt.length>MAX_CHARS) return;
 
-      // 顯示 & 存本地
       addMsg('user', prompt, {markdown:false});
       append({role:'user', parts:[{text:prompt}]});
       inputEl.value=''; updateCounter();
 
-      // 呼叫 API
       setLoading(true);
       controller = new AbortController();
       try{
@@ -349,7 +321,6 @@ export async function handler(event) {
       }
     }
 
-    // 初始化
     updateCounter();
   </script>
 </body>
