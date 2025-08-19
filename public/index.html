@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>數據之下的現實：重新認識台灣失業率</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Sans+TC&display=swap" />
+  <style>
+    body { font-family: 'Noto Sans TC', sans-serif; background:#fdfcd9; margin:0; }
+    .header{ background:#21409a; color:#fff; text-align:center; padding:24px 12px; font-size:clamp(1.4rem,2.5vw,2rem); font-weight:700;}
+    nav{ background:#21409a; display:flex; flex-wrap:wrap; justify-content:center; }
+    nav a{ line-height:2em; padding:18px 26px; color:#fff; text-decoration:none; font-weight:700; white-space:nowrap; font-size:clamp(0.9em,2.5vw,1.1em) }
+    nav a:hover{ background:#880e4f }
+    nav .active{ background:#800080!important; color:#fff!important; }
+    main{ max-width:1200px; margin:40px auto; padding:0 20px 100px }
+    .top-image{ width:100%; max-width:1000px; margin:0 auto; display:block; object-fit:cover; aspect-ratio:16/9; border-radius:8px; }
+    .quote{ text-align:center; font-weight:700; margin:12px auto; font-size:clamp(1rem,2.2vw,1.3rem); color:#133955; }
+    .data-section{ display:flex; flex-wrap:wrap; align-items:center; gap:24px; }
+    .data-title{ font-weight:700; margin-bottom:6px }
+    .data-list p{ margin:.4rem 0 }
+    .footer{ position:fixed; bottom:0; left:0; right:0; background:#21409a; color:#fff; text-align:center; padding:14px; font-size:.95em }
+    .footer a{ color:#fff; text-decoration:underline }
+  </style>
+</head>
+<body>
+  <header class="header">數據之下的現實：重新認識台灣失業率</header>
+  <nav class="w3-bar w3-indigo">
+    <a href="index.html" class="w3-bar-item w3-button w3-hover-white active">首頁</a>
+    <a href="trend.html" class="w3-bar-item w3-button w3-hover-white">趨勢分析</a>
+    <a href="policy.html" class="w3-bar-item w3-button w3-hover-white">國家政策</a>
+    <a href="case.html" class="w3-bar-item w3-button w3-hover-white">實際案例</a>
+    <a href="chatbot.html" class="w3-bar-item w3-button w3-hover-white">智能諮詢室</a>
+  </nav>
+  <main>
+    <img src="Unemployment_1.jpg" alt="站在人群中的求職者，象徵等待機會" class="top-image" loading="lazy"/>
+    <p class="quote">他不是懶惰，而是還在等待機會的人</p>
+    <section class="data-section" aria-labelledby="latest-tw-unemp">
+      <img src="Unemployment_4.jpg" alt="資訊插畫：找工作的人" style="width:280px; border-radius:10px" loading="lazy"/>
+      <div>
+        <div id="latest-tw-unemp" class="data-title">台灣失業人口資訊［2025 年 06 月］</div>
+        <div class="data-list" aria-live="polite">
+          <p>🙇‍♂️ 失業率：<span id="unemployment">--%</span></p>
+          <p>🕐 失業率（經季節調整）：<span id="seasonal_adjusted">--%</span></p>
+          <p>🧾 失業人數：<span id="unemployed_thousands">--</span></p>
+          <p>💼 就業人數：<span id="employed_thousands">--</span></p>
+          <p>📈 勞動力參與率：<span id="participation_rate">--%</span></p>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="footer">
+    📩 寄信給我 林宸緯 <a href="#" onclick="openGmail()">blue8841269@gmail.com</a>
+  </footer>
+  <script>
+    function openGmail(){
+      const email='blue8841269@gmail.com';
+      const subject=encodeURIComponent('主旨預設文字');
+      const body=encodeURIComponent('您好，我想了解有關台灣失業率資料的更多細節...');
+      window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${subject}&body=${body}`,'_blank');
+    }
+    const nf=new Intl.NumberFormat('zh-Hant-TW'); const pf=new Intl.NumberFormat('zh-Hant-TW',{maximumFractionDigits:2});
+    fetch("data.json?ts="+Date.now()).then(r=>r.json()).then(d=>{
+      const $=id=>document.getElementById(id);
+      d.unemployment_rate!=null && ($('unemployment').textContent=pf.format(d.unemployment_rate)+'%');
+      d.seasonal_adjusted!=null && ($('seasonal_adjusted').textContent=pf.format(d.seasonal_adjusted)+'%');
+      d.unemployed_thousands!=null && ($('unemployed_thousands').textContent=nf.format(d.unemployed_thousands)+' 千人');
+      d.employed_thousands!=null && ($('employed_thousands').textContent=nf.format(d.employed_thousands)+' 千人');
+      d.participation_rate!=null && ($('participation_rate').textContent=pf.format(d.participation_rate)+'%');
+    }).catch(()=>{ document.querySelectorAll('.data-list span').forEach(e=>e.textContent='資料錯誤'); });
+  </script>
+</body>
+</html>

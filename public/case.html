@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>實際案例｜數據之下的現實</title>
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Sans+TC" />
+  <style>
+    body{ font-family:'Noto Sans TC',sans-serif; background:#fdfcd9; margin:0 }
+    .header{ background:#21409a; color:#fff; text-align:center; padding:28px 16px; font-size:2rem; font-weight:700 }
+    nav{ background:#21409a; display:flex; flex-wrap:wrap; justify-content:center }
+    nav a{ line-height:2em; padding:18px 26px; color:#fff; text-decoration:none; font-weight:700; white-space:nowrap; font-size:clamp(0.9em,2.5vw,1.1em) }
+    nav a:hover{ background:#880e4f } .active{ background:#800080!important; color:#fff!important }
+    main{ max-width:1200px; margin:40px auto; padding:0 20px 100px }
+    table{ width:100%; border-collapse:separate; border-spacing:0; background:#fff; border-radius:12px; overflow:hidden }
+    thead th{ background:#21409a; color:#fff; padding:10px; font-weight:800 }
+    td{ border:1px solid #e9eef3; padding:10px; vertical-align:top }
+    .footer{ position:fixed; bottom:0; left:0; right:0; background:#21409a; color:#fff; text-align:center; padding:14px; font-size:.95em }
+    .footer a{ color:#fff; text-decoration:underline }
+  </style>
+</head>
+<body>
+  <header class="header">數據之下的現實：重新認識台灣失業率</header>
+  <nav class="w3-bar w3-indigo">
+    <a href="index.html" class="w3-bar-item w3-button w3-hover-white">首頁</a>
+    <a href="trend.html" class="w3-bar-item w3-button w3-hover-white">趨勢分析</a>
+    <a href="policy.html" class="w3-bar-item w3-button w3-hover-white">國家政策</a>
+    <a href="case.html" class="w3-bar-item w3-button w3-hover-white active">實際案例</a>
+    <a href="chatbot.html" class="w3-bar-item w3-button w3-hover-white">智能諮詢室</a>
+  </nav>
+  <main>
+    <div class="table-card">
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle text-start">
+          <thead>
+            <tr class="text-center">
+              <th>案例</th><th>目標族群</th><th>政策方案／機制</th><th>成效或特色</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="text-center">案例一</td><td>青年</td><td>初次尋職青年穩定就業 + YS 諮詢</td><td>獲尋職津貼與就業獎勵，轉職教育領域。</td></tr>
+            <tr><td class="text-center">案例二</td><td>青年（高階銲接）</td><td>客製化培訓 + 技能檢定 + 媒合</td><td>晉級全國技能競賽二階國手選拔。</td></tr>
+            <tr><td class="text-center">案例三</td><td>高齡者</td><td>銀髮中心媒合 + 僱用獎助 + 師徒制</td><td>重返職場任廠務助理。</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+  <footer class="footer">📩 寄信給我 林宸緯 <a href="#" onclick="openGmail()">blue8841269@gmail.com</a></footer>
+  <script>
+    function openGmail(){ const email="blue8841269@gmail.com"; const subject=encodeURIComponent("主旨預設文字"); const body=encodeURIComponent("您好，我想了解有關台灣失業率資料的更多細節..."); window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${subject}&body=${body}`,'_blank'); }
+  </script>
+</body>
+</html>

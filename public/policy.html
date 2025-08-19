@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>政策演進卡片｜台灣失業率</title>
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Sans+TC">
+  <style>
+    body{ font-family:'Noto Sans TC',sans-serif; background:#fdfcd9; margin:0 }
+    .header{ background:#21409a; color:#fff; text-align:center; padding:30px 0; font-size:2em; font-weight:700 }
+    nav{ background:#21409a; display:flex; flex-wrap:wrap; justify-content:center }
+    nav a{ line-height:2em; padding:18px 26px; color:#fff; text-decoration:none; font-weight:700; white-space:nowrap; font-size:clamp(0.9em,2.5vw,1.1em) }
+    nav a:hover{ background:#880e4f } .active{ background:#800080!important; color:#fff!important }
+    main{ max-width:1200px; margin:40px auto; padding:0 20px 100px }
+    .flip-card{ background:transparent; width:100%; max-width:900px; margin:16px auto }
+    .card-content{ display:flex; align-items:center; gap:16px; background:#fff; border-radius:10px; box-shadow:0 4px 8px rgba(0,0,0,.2); padding:24px }
+    .card-image{ flex:0 0 240px } .card-image img{ width:100%; border-radius:8px }
+    .card-text{ flex:1; font-size:.95em; line-height:1.9 }
+    .nav-buttons{ display:flex; justify-content:center; gap:40px; margin:40px 0 }
+    .footer{ position:fixed; bottom:0; left:0; right:0; background:#21409a; color:#fff; text-align:center; padding:14px; font-size:.95em }
+    .footer a{ color:#fff; text-decoration:underline }
+    @media (max-width:768px){ .card-content{ flex-direction:column } nav{ flex-direction:column } nav a{ width:100%; text-align:center } }
+  </style>
+</head>
+<body>
+  <header class="header">數據之下的現實：重新認識台灣失業率</header>
+  <nav class="w3-bar w3-indigo">
+    <a href="index.html" class="w3-bar-item w3-button w3-hover-white">首頁</a>
+    <a href="trend.html" class="w3-bar-item w3-button w3-hover-white">趨勢分析</a>
+    <a href="policy.html" class="w3-bar-item w3-button w3-hover-white active">國家政策</a>
+    <a href="case.html" class="w3-bar-item w3-button w3-hover-white">實際案例</a>
+    <a href="chatbot.html" class="w3-bar-item w3-button w3-hover-white">智能諮詢室</a>
+  </nav>
+  <main>
+    <section class="section">
+      <div class="section-text">
+        <h2>1978–2024：因應失業，台灣的政策如何演進？</h2>
+      </div>
+    </section>
+    <div id="cards">
+      <section class="page active"><div class="flip-card"><div class="card-content">
+        <div class="card-image"><img src="Unemployment_5.jpg" alt="經濟起飛時期政策圖片"></div>
+        <div class="card-text"><h5>1978–1980s：經濟起飛與法制建構</h5>推動經濟成長與職訓，1984《勞基法》奠定勞動基礎。</div>
+      </div></div></section>
+      <section class="page"><div class="flip-card"><div class="card-content">
+        <div class="card-image"><img src="Unemployment_6.jpg" alt="全球化衝擊時期政策圖片"></div>
+        <div class="card-text"><h5>1990s：全球化衝擊與服務機制</h5>外移與結構失業上升；建立就業服務中心與再就業輔導。</div>
+      </div></div></section>
+      <section class="page"><div class="flip-card"><div class="card-content">
+        <div class="card-image"><img src="Unemployment_7.jpg" alt="金融危機時期政策圖片"></div>
+        <div class="card-text"><h5>1998–2008：金融危機與安全網</h5>公共就業、緊急僱用；1999《就業保險法》上路。</div>
+      </div></div></section>
+      <section class="page"><div class="flip-card"><div class="card-content">
+        <div class="card-image"><img src="Unemployment_8.jpg" alt="金融海嘯時期政策圖片"></div>
+        <div class="card-text"><h5>2008–2010：金融海嘯下的臨時措施</h5>消費券、擴大公共建設、短工時補貼與在職訓練。</div>
+      </div></div></section>
+      <section class="page"><div class="flip-card"><div class="card-content">
+        <div class="card-image"><img src="Unemployment_9.jpg" alt="結構優化時期政策圖片"></div>
+        <div class="card-text"><h5>2010–2020：結構優化與多元彈性</h5>成立勞動力發展署，推動多元就業與彈性工時制度。</div>
+      </div></div></section>
+      <section class="page"><div class="flip-card"><div class="card-content">
+        <div class="card-image"><img src="Unemployment_10.jpg" alt="疫情防控與產業轉型"></div>
+        <div class="card-text"><h5>2020–2024：疫情防控與產業轉型</h5>安心即時上工、充電再出發、紓困與轉型培訓。</div>
+      </div></div></section>
+    </div>
+    <div class="nav-buttons">
+      <button onclick="changePage(-1)">⟸</button>
+      <div class="page-indicator">第 <span id="pageNum">1</span> / 6 頁</div>
+      <button onclick="changePage(1)">⟹</button>
+    </div>
+  </main>
+  <footer class="footer">📩 寄信給我 林宸緯 <a href="#" onclick="openGmail()">blue8841269@gmail.com</a></footer>
+  <script>
+    const pages=document.querySelectorAll('.page'); let currentPage=0;
+    function showPage(i){ pages.forEach((p,idx)=>p.classList.toggle('active', idx===i)); document.getElementById('pageNum').textContent=i+1; currentPage=i; }
+    function changePage(d){ currentPage=(currentPage+d+pages.length)%pages.length; showPage(currentPage); }
+    showPage(currentPage);
+    function openGmail(){ const email="blue8841269@gmail.com"; const subject=encodeURIComponent("主旨預設文字"); const body=encodeURIComponent("您好，我想了解有關台灣失業率資料的更多細節..."); window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${subject}&body=${body}`,'_blank'); }
+  </script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>智能諮詢室｜數據之下的現實</title>
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Sans+TC">
+  <script src="config.js"></script>
+  <style>
+    body{ font-family:'Noto Sans TC',sans-serif; background:#fdfcd9; margin:0 }
+    .header{ background:#21409a; color:#fff; text-align:center; padding:30px 0; font-size:2em; font-weight:700 }
+    nav{ background:#21409a; display:flex; flex-wrap:wrap; justify-content:center }
+    nav a{ line-height:2em; padding:18px 26px; color:#fff; text-decoration:none; font-weight:700; white-space:nowrap; font-size:clamp(0.9em,2.5vw,1.1em) }
+    nav a:hover{ background:#880e4f } .active{ background:#800080!important; color:#fff!important }
+    main{ max-width:1200px; margin:40px auto; padding:0 20px 100px }
+    .inline-chat-container{ margin:20px auto; width:100%; max-width:800px; min-height:600px; display:flex; flex-direction:column; background:#fff; border-radius:1rem; box-shadow:0 10px 15px rgba(0,0,0,0.1) }
+    .chat-messages{ flex:1; overflow-y:auto; padding:16px; background:#f9fafb }
+    .footer{ position:fixed; bottom:0; left:0; right:0; background:#21409a; color:#fff; text-align:center; padding:14px; font-size:.95em }
+    .footer a{ color:#fff; text-decoration:underline }
+    textarea{ resize:none }
+  </style>
+</head>
+<body>
+  <header class="header">數據之下的現實：重新認識台灣失業率</header>
+  <nav class="w3-bar w3-indigo">
+    <a href="index.html" class="w3-bar-item w3-button w3-hover-white">首頁</a>
+    <a href="trend.html" class="w3-bar-item w3-button w3-hover-white">趨勢分析</a>
+    <a href="policy.html" class="w3-bar-item w3-button w3-hover-white">國家政策</a>
+    <a href="case.html" class="w3-bar-item w3-button w3-hover-white">實際案例</a>
+    <a href="chatbot.html" class="w3-bar-item w3-button w3-hover-white active">智能諮詢室</a>
+  </nav>
+  <main>
+    <div class="inline-chat-container">
+      <div class="p-4" style="background:linear-gradient(45deg,#3b82f6,#8b5cf6); color:#fff; text-align:center; font-weight:800; border-top-left-radius:1rem; border-top-right-radius:1rem">Gemini 聊天室</div>
+      <div id="chat-messages" class="chat-messages">
+        <div class="flex" style="justify-content:flex-start">
+          <div style="background:#e0ecff; color:#1e40af; padding:10px; border-radius:10px; max-width:80%;">嗨！我是 Gemini，有什麼我可以幫助你的嗎？</div>
+        </div>
+      </div>
+      <div id="loading-indicator" class="hidden" style="display:none; align-items:center; justify-content:center; gap:8px; padding:8px">
+        <div class="animate-spin" style="width:24px; height:24px; border:2px solid #e5e7eb; border-top-color:#3b82f6; border-radius:9999px"></div>
+        <span style="color:#6b7280">Gemini 正在思考...</span>
+      </div>
+      <div style="padding:12px; border-top:1px solid #e5e7eb; display:flex; gap:8px; align-items:center; border-bottom-left-radius:1rem; border-bottom-right-radius:1rem; background:#fff">
+        <textarea id="user-input" class="flex-1" placeholder="輸入你的訊息..." rows="1" style="padding:12px; border:1px solid #d1d5db; border-radius:10px; outline:none; height:44px; overflow:hidden"></textarea>
+        <button id="send-button" style="padding:10px 16px; background:#2563eb; color:#fff; border:none; border-radius:10px; font-weight:700; cursor:pointer;">傳送</button>
+      </div>
+    </div>
+  </main>
+  <footer class="footer">📩 寄信給我 林宸緯 <a href="#" onclick="openGmail()">blue8841269@gmail.com</a></footer>
+  <script>
+    let chatHistory=[];
+    const chatMessages=document.getElementById('chat-messages');
+    const userInput=document.getElementById('user-input');
+    const sendButton=document.getElementById('send-button');
+    const loadingIndicator=document.getElementById('loading-indicator');
+
+    function addMessage(sender, text){
+      const wrap=document.createElement('div'); wrap.classList.add('flex'); wrap.style.justifyContent = sender==='user' ? 'flex-end':'flex-start';
+      const bubble=document.createElement('div'); bubble.style.padding='10px'; bubble.style.borderRadius='10px'; bubble.style.maxWidth='80%'; bubble.style.boxShadow='0 1px 2px rgba(0,0,0,.06)';
+      if(sender==='user'){ bubble.style.background='#2563eb'; bubble.style.color='#fff'; } else { bubble.style.background='#e5e7eb'; bubble.style.color='#1f2937'; }
+      bubble.textContent=text; wrap.appendChild(bubble); chatMessages.appendChild(wrap); chatMessages.scrollTop=chatMessages.scrollHeight; window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    async function smartFetch(url, options){
+      // 首先嘗試相對路徑（Netlify 原生）
+      try{
+        const r=await fetch(url, options);
+        if(r.ok) return r;
+      }catch(e){}
+      // 若在 GitHub Pages 上，相對路徑會 404；嘗試 config.js 的後備網域
+      try{
+        if(typeof FALLBACK_FUNCTION_BASE === 'string' && FALLBACK_FUNCTION_BASE){
+          const full = FALLBACK_FUNCTION_BASE.replace(/\/$/, '') + url;
+          const r2 = await fetch(full, options);
+          return r2;
+        }
+      }catch(e){}
+      // 最終回傳第一個結果（可能是 404）以便錯誤顯示
+      return fetch(url, options).catch(err=>{ throw err; });
+    }
+
+    async function sendMessage(){
+      const prompt=userInput.value.trim(); if(!prompt) return;
+      addMessage('user', prompt); userInput.value=''; loadingIndicator.style.display='flex'; sendButton.disabled=true; userInput.disabled=true;
+      chatHistory.push({ role:'user', parts:[{ text: prompt }] });
+      const payload={ contents: chatHistory };
+      try{
+        const r = await smartFetch('/.netlify/functions/chat', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+        const result = await r.json();
+        const text = result?.candidates?.[0]?.content?.parts?.[0]?.text ?? '抱歉，我沒有讀到回覆。';
+        addMessage('model', text);
+        chatHistory.push({ role:'model', parts:[{ text }] });
+      }catch(err){
+        addMessage('model', '抱歉，連線發生錯誤。請稍後再試或設定 public/config.js 中的 FALLBACK_FUNCTION_BASE。');
+      }finally{
+        loadingIndicator.style.display='none'; sendButton.disabled=false; userInput.disabled=false; userInput.focus();
+      }
+    }
+    sendButton.addEventListener('click', sendMessage);
+    userInput.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(); } });
+    userInput.addEventListener('input', ()=>{ userInput.style.height='auto'; userInput.style.height=userInput.scrollHeight+'px'; });
+
+    function openGmail(){ const email="blue8841269@gmail.com"; const subject=encodeURIComponent("主旨預設文字"); const body=encodeURIComponent("您好，我想了解有關台灣失業率資料的更多細節..."); window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${subject}&body=${body}`,'_blank'); }
+  </script>
+</body>
+</html>
